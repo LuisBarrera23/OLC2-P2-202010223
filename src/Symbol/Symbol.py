@@ -10,6 +10,7 @@ class Simbolo:
         self.valor=None
         self.tipo= TipoDato.ERROR
         self.editable=False
+        self.direccionRelativa=0
         self.linea=0
         self.columna=0
 
@@ -25,12 +26,13 @@ class Simbolo:
         self.capacidad=0
 
         
-    def Simbolo_primitivo(self, id, valor,tipo,linea, columna, editable=False):
+    def Simbolo_primitivo(self, id, valor,tipo,linea, columna,direccionRelativa, editable=False):
         self.identificador=id
         self.valor=valor
         self.tipo=tipo
         self.linea=linea
         self.columna=columna
+        self.direccionRelativa=direccionRelativa
         self.editable=editable
     
     def Simbolo_funcion(self, identificador, parametros, instrucciones, tipo=None):

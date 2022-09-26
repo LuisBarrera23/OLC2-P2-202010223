@@ -46,7 +46,7 @@ def ejecutar():
     errores:Error=s.getErrores()
     for e in errores:
         print(e.descripcion,e.tiempo," linea: ",e.linea," columna: ",e.columna)
-    return jsonify({'salida':s.getConsola()})
+    return jsonify({'salida':s.generarMain()})
 
 if __name__=="__main__":
     app.run(host="0.0.0.0",port=8080,debug=True)

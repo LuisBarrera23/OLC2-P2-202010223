@@ -9,7 +9,6 @@ from src.Symbol.Error import Error
 from src.Symbol.ArrayInstancia import ArrayInstancia
 
 class Print(Instruccion):
-    pass
 
     def __init__(self,expresion,linea,columna):
         self.expresion:List=expresion
@@ -18,64 +17,80 @@ class Print(Instruccion):
 
     def Ejecutar(self, entorno):
         s=Singleton.getInstance()
-        # E=self.expresion.obtenerValor(entorno)
-        # if(E.tipo==TipoDato.ERROR):
-        #     raise Exception(s.addError(Error("Print fallido, revise la expresion",self.linea,self.columna)))
         if len(self.expresion)==1:
-            s.addConsola(str(self.expresion[0].obtenerValor(entorno).valor)+"\n")
+            return self.imprimir(self.expresion[0],entorno)+"printf(\"%c\",(char)10);\n"
         else:
-            lista=[]
+            codigo=""
             for i in self.expresion:
-                lista.append(i.obtenerValor(entorno))
-            formato=lista[0].valor
-            lista.pop(0)
-            estado=0
-            salida=""
-            for i in formato:
-                if estado==0:
-                    if i =="{":
-                        estado=1
-                    else:
-                        salida+=i
-                elif estado==1:
-                    if self.isEspacio(i):
-                        pass
-                    elif i =="}":
-                        if len(lista)>0:
-                            if isinstance(lista[0].valor,ArrayInstancia):
-                                salida+=str(lista[0].valor.valores)
-                                lista.pop(0)
-                            else:
-                                salida+=str(lista[0].valor)
-                                lista.pop(0)
-                            estado=0
-                    elif i ==":":
-                        estado=2
-                elif estado==2:
-                    if i =="?":
-                        estado=3
-                    elif self.isEspacio(i):
-                        pass
-                elif estado==3:
-                    if self.isEspacio(i):
-                        pass
-                    elif i=="}":
-                        if len(lista)>0:
-                            print(lista[0])
-                            if isinstance(lista[0].valor,ArrayInstancia):
-                                salida+=str(lista[0].valor.valores)
-                                lista.pop(0)
-                            else:
-                                salida+=str(lista[0].valor)
-                                lista.pop(0)
-                            estado=0
+                codigo+=self.imprimir(i,entorno)
+            codigo+="printf(\"%c\",(char)10);\n"
+            return codigo
 
-            if len(lista)!=0:
-                raise Exception(s.addError(Error("Print fallido, hicieron falta expresiones por imprimir",self.linea,self.columna)))
-            s.addConsola(str(salida)+"\n")
+    def imprimir(self,expresion,entorno):
+        codigoSalida=""
+        exp:RetornoType=expresion.obtener3D(entorno)
+        s=Singleton.getInstance()
 
-    def isEspacio(self,c):
-        if (ord(c)==32 or ord(c)==9 or ord(c)==10):
-            return True
-        else:
-            return False
+        if exp.tipo == TipoDato.I64:
+            codigoSalida += "/* IMPRIMIENDO UN VALOR ENTERO*/\n"
+            codigoSalida += exp.codigo
+            codigoSalida += f'printf(\"%d\", (int){exp.temporal}); \n'
+            return codigoSalida
+
+        elif exp.tipo == TipoDato.F64:
+            codigoSalida += "/* IMPRIMIENDO UN VALOR DECIMAL*/\n"
+            codigoSalida += exp.codigo
+            codigoSalida += f'printf(\"%f\", (float){exp.temporal}); \n'
+            return codigoSalida
+        elif exp.tipo == TipoDato.STR:
+            temp1=s.obtenerTemporal()
+            caracter=s.obtenerTemporal()
+            etqCiclo=s.obtenerEtiqueta()
+            etqSalida=s.obtenerEtiqueta()
+
+            codigoSalida += "/* IMPRIMIENDO UN VALOR CADENA STR*/\n"
+            codigoSalida += exp.codigo
+            codigoSalida +=f"{temp1} = {exp.temporal};\n"
+            codigoSalida +=f"{etqCiclo}:\n"
+            codigoSalida +=f"{caracter} = Heap[(int){temp1}];\n"
+
+            codigoSalida +=f"if({caracter} == 0) goto {etqSalida};\n"
+            codigoSalida +=f"   printf(\"%c\",(char){caracter});\n"
+            codigoSalida +=f"   {temp1} = {temp1} + 1;\n"
+            codigoSalida +=f"   goto {etqCiclo};\n"
+
+            codigoSalida +=f"{etqSalida}:\n"
+            return codigoSalida
+
+        elif exp.tipo == TipoDato.STRING:
+            temp1=s.obtenerTemporal()
+            caracter=s.obtenerTemporal()
+            etqCiclo=s.obtenerEtiqueta()
+            etqSalida=s.obtenerEtiqueta()
+
+            codigoSalida += "/* IMPRIMIENDO UN VALOR CADENA STRING*/\n"
+            codigoSalida += exp.codigo
+            codigoSalida +=f"{temp1} = {exp.temporal};\n"
+            codigoSalida +=f"{etqCiclo}:\n"
+            codigoSalida +=f"{caracter} = Heap[(int){temp1}];\n"
+
+            codigoSalida +=f"if({caracter} == 0) goto {etqSalida};\n"
+            codigoSalida +=f"   printf(\"%c\",(char){caracter});\n"
+            codigoSalida +=f"   {temp1} = {temp1} + 1;\n"
+            codigoSalida +=f"   goto {etqCiclo};\n"
+
+            codigoSalida +=f"{etqSalida}:\n"
+            return codigoSalida
+
+        elif exp.tipo == TipoDato.BOOL:
+            codigoSalida += "/* IMPRIMIENDO UN VALOR BOOLEANO*/\n"
+            codigoSalida += exp.codigo
+            codigoSalida += f'printf(\"%d\", (int){exp.temporal}); \n'
+            return codigoSalida
+        
+        elif exp.tipo == TipoDato.CHAR:
+            codigoSalida += "/* IMPRIMIENDO UN VALOR CHAR*/\n"
+            codigoSalida += exp.codigo
+            codigoSalida += f'printf(\"%c\", (char){exp.temporal}); \n'
+            return codigoSalida
+

@@ -4,5 +4,5 @@ from src.Abstract.RetornoType import RetornoType
 
 class Expresion(ABC):
     @abstractmethod
-    def obtenerValor(self,entorno) -> RetornoType:
+    def obtener3D(self,entorno) -> RetornoType:
         pass

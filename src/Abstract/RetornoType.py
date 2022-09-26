@@ -12,6 +12,16 @@ class TipoDato(IntEnum):
     ERROR = 8,
 
 class RetornoType:
-    def __init__(self, valor=None, tipo=TipoDato.ERROR):
-        self.valor=valor
+    def __init__(self,tipo=TipoDato.ERROR):
+        self.codigo = ""
+        self.etiqueta = ""
+        self.temporal = ""
+        self.tipo = tipo
+        self.etiquetaV = ""
+        self.etiquetaF = ""
+
+    def iniciarRetorno(self,codigo, etiqueta, temporal, tipo):
+        self.codigo=codigo
+        self.etiqueta=etiqueta
+        self.temporal=temporal
         self.tipo=tipo

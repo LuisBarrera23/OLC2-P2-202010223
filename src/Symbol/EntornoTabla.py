@@ -8,6 +8,7 @@ class EntornoTabla:
         self.tabla={}
         self.tablaFunciones={}
         self.tablaClases={}
+        self.tamaño=0
 
 # Manejo de simbolos--------------------------------------------------------
     def existeSimbolo(self,identificador):

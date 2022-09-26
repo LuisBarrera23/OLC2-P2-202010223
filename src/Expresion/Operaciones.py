@@ -33,14 +33,14 @@ class Operacion(Expresion):
         self.tipo2:TipoDato=TipoDato.ERROR
         
 
-    def obtenerValor(self, entorno) -> RetornoType:
+    def obtener3D(self, entorno) -> RetornoType:
         s=Singleton.getInstance()
         E1=RetornoType()
         E2=RetornoType()
         RetornoUnario=RetornoType()
 
         if self.unario:
-            RetornoUnario=self.izquierda.obtenerValor(entorno)
+            RetornoUnario=self.izquierda.obtener3D(entorno)
             if RetornoUnario.tipo==TipoDato.I64:
                 return RetornoType(valor=int(RetornoUnario.valor*-1),tipo=RetornoUnario.tipo)
             elif RetornoUnario.tipo==TipoDato.F64:
@@ -49,23 +49,61 @@ class Operacion(Expresion):
                 return RetornoType(valor=not RetornoUnario.valor,tipo=TipoDato.BOOL)
 
         else:
-            E1=self.izquierda.obtenerValor(entorno)
-            E2=self.derecha.obtenerValor(entorno)
+            E1:RetornoType=self.izquierda.obtener3D(entorno)
+            E2:RetornoType=self.derecha.obtener3D(entorno)
+            temp1=s.obtenerTemporal()
+            retorno=RetornoType()
+            codigoSalida=""
             
             if self.tipo==TIPO_OPERACION.SUMA:
                 if E1.tipo==TipoDato.F64 and E2.tipo==TipoDato.F64:
-                    return RetornoType(valor=float(E1.valor+E2.valor),tipo=TipoDato.F64)
+                    codigoSalida+="/* SUMA */\n"
+                    codigoSalida += E1.codigo +"\n"
+                    codigoSalida += E2.codigo +"\n"
+                    codigoSalida += f'{temp1} = {E1.temporal} + {E2.temporal};\n'
+                    retorno.iniciarRetorno(codigoSalida,"",temp1,TipoDato.F64)
+                    return retorno
                 elif E1.tipo==TipoDato.I64 and E2.tipo==TipoDato.I64:
-                    return RetornoType(valor=int(E1.valor+E2.valor),tipo=TipoDato.I64)
+                    codigoSalida+="/* SUMA */\n"
+                    codigoSalida += E1.codigo +"\n"
+                    codigoSalida += E2.codigo +"\n"
+                    codigoSalida += f'{temp1} = {E1.temporal} + {E2.temporal};\n'
+                    retorno.iniciarRetorno(codigoSalida,"",temp1,TipoDato.I64)
+                    return retorno
                 elif E1.tipo==TipoDato.I64 and E2.tipo==TipoDato.USIZE:
-                    return RetornoType(valor=int(E1.valor+E2.valor),tipo=TipoDato.USIZE)
+                    codigoSalida+="/* SUMA */\n"
+                    codigoSalida += E1.codigo +"\n"
+                    codigoSalida += E2.codigo +"\n"
+                    codigoSalida += f'{temp1} = {E1.temporal} + {E2.temporal};\n'
+                    retorno.iniciarRetorno(codigoSalida,"",temp1,TipoDato.USIZE)
+                    return retorno
                 elif E1.tipo==TipoDato.USIZE and E2.tipo==TipoDato.I64:
-                    return RetornoType(valor=int(E1.valor+E2.valor),tipo=TipoDato.USIZE)
+                    codigoSalida+="/* SUMA */\n"
+                    codigoSalida += E1.codigo +"\n"
+                    codigoSalida += E2.codigo +"\n"
+                    codigoSalida += f'{temp1} = {E1.temporal} + {E2.temporal};\n'
+                    retorno.iniciarRetorno(codigoSalida,"",temp1,TipoDato.USIZE)
+                    return retorno
                 elif E1.tipo==TipoDato.USIZE and E2.tipo==TipoDato.USIZE:
-                    return RetornoType(valor=int(E1.valor+E2.valor),tipo=TipoDato.USIZE)
-                elif E1.tipo==TipoDato.STRING and E2.tipo==TipoDato.STR:
-                    return RetornoType(valor=str(E1.valor+E2.valor),tipo=TipoDato.STRING)
+                    codigoSalida+="/* SUMA */\n"
+                    codigoSalida += E1.codigo +"\n"
+                    codigoSalida += E2.codigo +"\n"
+                    codigoSalida += f'{temp1} = {E1.temporal} + {E2.temporal};\n'
+                    retorno.iniciarRetorno(codigoSalida,"",temp1,TipoDato.USIZE)
+                    return retorno
+                elif E1.tipo==TipoDato.STR and E2.tipo==TipoDato.STR:
+                    codigoSalida+="/* SUMA */\n"
+                    codigoSalida += E1.codigo +"\n"
+                    codigoSalida += E2.codigo +"\n"
+                    codigoSalida += f'{temp1} = HP;\n'
+                    codigoSalida += self.operacionConcatenar(entorno,E1)
+                    codigoSalida += self.operacionConcatenar(entorno,E2)
+                    codigoSalida += f'Heap[HP] = 0;\n'  #agregamos caracter de escape
+                    codigoSalida += f'HP = HP + 1;\n'   #modificamos el apuntador del heap a una posicion vacia
+                    retorno.iniciarRetorno(codigoSalida,"",temp1,TipoDato.STRING)
+                    return retorno
                 elif E1.tipo==TipoDato.STR and E2.tipo==TipoDato.STRING:
+                    codigoSalida+="/* SUMA */\n"
                     return RetornoType(valor=str(E1.valor+E2.valor),tipo=TipoDato.STRING)
 
                 else:
@@ -154,3 +192,22 @@ class Operacion(Expresion):
                     return RetornoType(valor=E1.valor and E2.valor,tipo=TipoDato.BOOL)
                 else:
                     raise Exception(s.addError(Error("Tipo de AND no valido",self.linea,self.columna)))
+
+
+
+    def operacionConcatenar(self,entorno,expresionRetorno):
+        s=Singleton.getInstance()
+        codigoSalida = ""
+        etqCiclo = s.obtenerEtiqueta()
+        etqSalida = s.obtenerEtiqueta()
+        CARACTER = s.obtenerTemporal()
+        #concatenar recorriendo el heap hasta encontrar el caracter de escape 0
+        codigoSalida += f'{etqCiclo}: \n'
+        codigoSalida += f'{CARACTER} = Heap[(int){expresionRetorno.temporal}];\n'
+        codigoSalida += f'if ( {CARACTER} == 0) goto {etqSalida};\n'
+        codigoSalida += f'     Heap[HP] = {CARACTER};\n'
+        codigoSalida += f'     HP = HP + 1;\n'
+        codigoSalida += f'     {expresionRetorno.temporal} = {expresionRetorno.temporal} + 1;\n'
+        codigoSalida += f'     goto {etqCiclo};\n'
+        codigoSalida += f'{etqSalida}:\n'
+        return codigoSalida
