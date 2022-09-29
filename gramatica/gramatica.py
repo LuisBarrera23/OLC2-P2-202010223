@@ -435,23 +435,33 @@ def p_asignacion(t):
     t[0]= Asignacion(t[1],t[3],t.lexer.lineno,find_column(entrada,t.slice[2]))
 
 def p_if_instruccion(t):
-    """if_i : IF expresion bloque else"""
-    t[0] = If_i(t[2],t[3],t[4],t.lexer.lineno,find_column(entrada,t.slice[1]))
+    """ if_i : IF expresion bloque
+            |  IF expresion bloque ELSE bloque
+            |  IF expresion bloque listaelseI
+            |  IF expresion bloque listaelseI ELSE bloque"""
 
-def p_else_instruccion(t):
-    """else : ELSE if_i
-            | ELSE  bloque
-            | empty"""
+    if len(t)==4:
+        t[0]=If_i(t[2],t[3],[],[],t.lexer.lineno,find_column(entrada,t.slice[1]))
+    elif len(t)==6:
+        t[0]=If_i(t[2],t[3],[],t[5],t.lexer.lineno,find_column(entrada,t.slice[1]))
+    elif len(t)==5:
+        t[0]=If_i(t[2],t[3],t[4],[],t.lexer.lineno,find_column(entrada,t.slice[1]))
+    elif len(t)==7:
+        t[0]=If_i(t[2],t[3],t[4],t[6],t.lexer.lineno,find_column(entrada,t.slice[1]))
+
+def p_elseif_lista_ins(t):
+    """ listaelseI : listaelseI elseifI """
+    t[1].append(t[2])
+    t[0]=t[1]
     
-    if len(t)==3:
-        t[0] = t[2]
-    if len(t)==2:
-        t[0]=[]
+def p_elseif_otra_ins(t):
+    """listaelseI : elseifI """
+    t[0]=[t[1]]
 
-def p_vacio(t):
-    """empty : """
-    pass
-    # para romper la recursividad 
+def p_elseif_corte(t):
+    """elseifI : ELSE IF expresion bloque"""
+    t[0]=If_i(t[3],t[4],[],[],t.lexer.lineno,find_column(entrada,t.slice[1]))
+
 
 
 def p_loop(t):
