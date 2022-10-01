@@ -36,28 +36,54 @@ class Operacion(Expresion):
         
 
     def obtener3D(self, entorno) -> RetornoType:
+        codigoSalida=""
         s=Singleton.getInstance()
         E1=RetornoType()
         E2=RetornoType()
         RetornoUnario=RetornoType()
 
         if self.unario:
-            RetornoUnario=self.izquierda.obtener3D(entorno)
+            RetornoUnario:RetornoType=self.izquierda.obtener3D(entorno)
             if RetornoUnario.tipo==TipoDato.I64:
-                return RetornoType(valor=int(RetornoUnario.valor*-1),tipo=RetornoUnario.tipo)
+                codigoSalida6+="/* NEGACION DE ENTERO */\n"
+                codigoSalida+=RetornoUnario.codigo
+                codigoSalida+=f"{RetornoUnario.temporal} = {RetornoUnario.temporal} * -1;\n"
+                retorno=RetornoType()
+                retorno.iniciarRetorno(codigoSalida,"",RetornoUnario.temporal,RetornoUnario.tipo)
+                return retorno
             elif RetornoUnario.tipo==TipoDato.F64:
-                return RetornoType(valor=float(RetornoUnario.valor*-1),tipo=RetornoUnario.tipo)
+                codigoSalida+="/* NEGACION DE DECIMAL */\n"
+                codigoSalida+=RetornoUnario.codigo
+                codigoSalida+=f"{RetornoUnario.temporal} = {RetornoUnario.temporal} * -1;\n"
+                retorno=RetornoType()
+                retorno.iniciarRetorno(codigoSalida,"",RetornoUnario.temporal,RetornoUnario.tipo)
+                return retorno
             elif RetornoUnario.tipo==TipoDato.BOOL and self.tipo==TIPO_OPERACION.NOT:
-                return RetornoType(valor=not RetornoUnario.valor,tipo=TipoDato.BOOL)
+                codigoSalida=""
+                temp1=s.obtenerTemporal()
+                etq1=s.obtenerEtiqueta()
+                etq2=s.obtenerEtiqueta()
+
+                codigoSalida += RetornoUnario.codigo
+                codigoSalida += f"/* OPERACION NOT */\n"
+                codigoSalida += f"if({RetornoUnario.temporal}==1) goto {etq1};\n"
+                codigoSalida += f"  {temp1} = 1;\n"
+                codigoSalida += f"  goto {etq2};\n"
+                codigoSalida += f"{etq1}:\n"
+                codigoSalida += f"{temp1} = 0;\n"
+                codigoSalida += f"{etq2}:\n"
+                retorno=RetornoType()
+                retorno.iniciarRetorno(codigoSalida,"",temp1,TipoDato.BOOL)
+                return retorno
 
         else:
-            E1:RetornoType=self.izquierda.obtener3D(entorno)
-            E2:RetornoType=self.derecha.obtener3D(entorno)
-            temp1=s.obtenerTemporal()
             retorno=RetornoType()
             codigoSalida=""
             
             if self.tipo==TIPO_OPERACION.SUMA:
+                E1:RetornoType=self.izquierda.obtener3D(entorno)
+                E2:RetornoType=self.derecha.obtener3D(entorno)
+                temp1=s.obtenerTemporal()
                 if E1.tipo==TipoDato.F64 and E2.tipo==TipoDato.F64:
                     codigoSalida+="/* SUMA */\n"
                     codigoSalida += E1.codigo +"\n"
@@ -120,6 +146,9 @@ class Operacion(Expresion):
                     raise Exception(s.addError(Error("Tipo de suma no valida",self.linea,self.columna)))
             
             elif self.tipo==TIPO_OPERACION.RESTA:
+                E1:RetornoType=self.izquierda.obtener3D(entorno)
+                E2:RetornoType=self.derecha.obtener3D(entorno)
+                temp1=s.obtenerTemporal()
                 if E1.tipo==TipoDato.F64 and E2.tipo==TipoDato.F64:
                     codigoSalida+="/* RESTA */\n"
                     codigoSalida += E1.codigo +"\n"
@@ -159,6 +188,9 @@ class Operacion(Expresion):
                     raise Exception(s.addError(Error("Tipo de resta no valida",self.linea,self.columna)))
             
             elif self.tipo==TIPO_OPERACION.MULTIPLICACION:
+                E1:RetornoType=self.izquierda.obtener3D(entorno)
+                E2:RetornoType=self.derecha.obtener3D(entorno)
+                temp1=s.obtenerTemporal()
                 if E1.tipo==TipoDato.F64 and E2.tipo==TipoDato.F64:
                     codigoSalida+="/* MULTIPLICACION */\n"
                     codigoSalida += E1.codigo +"\n"
@@ -177,6 +209,9 @@ class Operacion(Expresion):
                     raise Exception(s.addError(Error("Tipo de multiplicacion no valida",self.linea,self.columna)))
 
             elif self.tipo==TIPO_OPERACION.DIVISION:
+                E1:RetornoType=self.izquierda.obtener3D(entorno)
+                E2:RetornoType=self.derecha.obtener3D(entorno)
+                temp1=s.obtenerTemporal()
                 if E1.tipo==TipoDato.F64 and E2.tipo==TipoDato.F64:
                     codigoSalida+="/* DIVISION */\n"
                     codigoSalida += E1.codigo +"\n"
@@ -234,6 +269,9 @@ class Operacion(Expresion):
                     raise Exception(s.addError(Error("Tipo de division no valida",self.linea,self.columna)))
 
             elif self.tipo==TIPO_OPERACION.POTENCIA:
+                E1:RetornoType=self.izquierda.obtener3D(entorno)
+                E2:RetornoType=self.derecha.obtener3D(entorno)
+                temp1=s.obtenerTemporal()
                 if E1.tipo==TipoDato.F64 and E2.tipo==TipoDato.F64 and self.tipo2==TipoDato.F64:
                     etqCiclo=s.obtenerEtiqueta()
                     etqSalida=s.obtenerEtiqueta()
@@ -279,6 +317,9 @@ class Operacion(Expresion):
                     raise Exception(s.addError(Error("Tipo de potencia no valida",self.linea,self.columna)))
             
             elif self.tipo==TIPO_OPERACION.MODULO:
+                E1:RetornoType=self.izquierda.obtener3D(entorno)
+                E2:RetornoType=self.derecha.obtener3D(entorno)
+                temp1=s.obtenerTemporal()
                 if E1.tipo==TipoDato.F64 and E2.tipo==TipoDato.F64:
                     codigoSalida+="/* MODULO */\n"
                     codigoSalida += E1.codigo +"\n"
@@ -359,16 +400,45 @@ class Operacion(Expresion):
 #Operaciones logicas
 
             elif self.tipo==TIPO_OPERACION.OR:
-                if E1.tipo==TipoDato.BOOL and E2.tipo==TipoDato.BOOL:
-                    return RetornoType(valor=E1.valor or E2.valor,tipo=TipoDato.BOOL)
-                else:
+                self.izquierda.etiquetaVerdadera=self.etiquetaVerdadera
+                self.izquierda.etiquetaFalsa=s.obtenerEtiqueta()
+                self.derecha.etiquetaVerdadera=self.etiquetaVerdadera
+                self.derecha.etiquetaFalsa = self.etiquetaFalsa
+
+                E1:RetornoType=self.izquierda.obtener3D(entorno)
+                E2:RetornoType=self.derecha.obtener3D(entorno)
+                if E1.tipo!=TipoDato.BOOL or E2.tipo!=TipoDato.BOOL:
                     raise Exception(s.addError(Error("Tipo de OR no valido",self.linea,self.columna)))
+                    
+                codigoSalida=""
+                codigoSalida += E1.codigo
+                codigoSalida += f"{E1.etiquetaF}:\n"
+                codigoSalida += E2.codigo
+                retorno.etiquetaF=self.etiquetaFalsa
+                retorno.etiquetaV=self.etiquetaVerdadera
+                retorno.iniciarRetorno(codigoSalida,"","",TipoDato.BOOL)
+                return retorno
+                
 
             elif self.tipo==TIPO_OPERACION.AND:
-                if E1.tipo==TipoDato.BOOL and E2.tipo==TipoDato.BOOL:
-                    return RetornoType(valor=E1.valor and E2.valor,tipo=TipoDato.BOOL)
-                else:
+                self.izquierda.etiquetaVerdadera=s.obtenerEtiqueta()
+                self.izquierda.etiquetaFalsa=self.etiquetaFalsa
+                self.derecha.etiquetaVerdadera=self.etiquetaVerdadera
+                self.derecha.etiquetaFalsa = self.etiquetaFalsa
+
+                E1:RetornoType=self.izquierda.obtener3D(entorno)
+                E2:RetornoType=self.derecha.obtener3D(entorno)
+                if E1.tipo!=TipoDato.BOOL or E2.tipo!=TipoDato.BOOL:
                     raise Exception(s.addError(Error("Tipo de AND no valido",self.linea,self.columna)))
+                    
+                codigoSalida=""
+                codigoSalida += E1.codigo
+                codigoSalida += f"{E1.etiquetaV}:\n"
+                codigoSalida += E2.codigo
+                retorno.etiquetaF=self.etiquetaFalsa
+                retorno.etiquetaV=self.etiquetaVerdadera
+                retorno.iniciarRetorno(codigoSalida,"","",TipoDato.BOOL)
+                return retorno
 
 
 

@@ -13,19 +13,25 @@ class Asignacion(Instruccion):
         self.columna=columna
         
     def Ejecutar(self, entorno):
-        E=self.expresion.obtenerValor(entorno)
+        codigoSalida=""
         existe=entorno.existeSimbolo(self.id)
         s=Singleton.getInstance()
         if existe is False:
             raise Exception(s.addError(Error(f"Variable {self.id} no existe",self.linea,self.columna)))
         else:
-            exp=entorno.obtenerSimbolo(self.id)
-            #print(E.tipo,exp.tipo)
-            if exp.editable is False:
+            valor=self.expresion.obtener3D(entorno)
+            variable:Simbolo=entorno.obtenerSimbolo(self.id)
+
+            if variable.editable is False:
                 raise Exception(s.addError(Error(f"Variable {self.id} no es mutable",self.linea,self.columna)))
-            if E.tipo==TipoDato.I64 and exp.tipo==TipoDato.USIZE:
-                entorno.modificarSimbolo(self.id,E.valor)
-            elif E.tipo==exp.tipo:
-                entorno.modificarSimbolo(self.id,E.valor)
+
+            if valor.tipo==variable.tipo or (valor.tipo==TipoDato.I64 and variable.tipo==TipoDato.USIZE):
+                temp1=s.obtenerTemporal()
+                codigoSalida += "/* ASIGNACION A UNA VARIABLE */\n"
+                codigoSalida += valor.codigo + '\n'
+                codigoSalida += f'{temp1} = SP + {variable.direccionRelativa}; \n'
+                codigoSalida += f'Stack[(int) {temp1}] = {valor.temporal};\n'
+                return codigoSalida
             else:
                 raise Exception(s.addError(Error(f"Variable {self.id} no es del mismo tipo de dato que la expresion",self.linea,self.columna)))
+

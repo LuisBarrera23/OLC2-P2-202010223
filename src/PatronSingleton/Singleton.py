@@ -48,7 +48,7 @@ class Singleton:
         return etiqueta
 
     def generarEncabezado(self):
-        codigo = "#include <stdio.h>\nfloat Stack[10000];\nfloat Heap[10000];\nint SP = 0;\nint HP = 0;\n"
+        codigo = "#include <stdio.h>\nfloat Stack[10000];\nfloat Heap[10000];\nint SP;\nint HP;\n"
         if self.temporales > 0:
             codigo += "float "
             for i in range(0, self.temporales):
