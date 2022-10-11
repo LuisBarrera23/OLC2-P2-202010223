@@ -1,5 +1,4 @@
 from src.Symbol.Symbol import Simbolo
-from src.Instruccion.Funcion import Funcion
 
 
 class EntornoTabla:
@@ -43,6 +42,7 @@ class EntornoTabla:
 
     def agregarSimbolo(self, simboloAdd:Simbolo):
         self.tabla[simboloAdd.identificador] = simboloAdd
+        self.tamaño+=1
 
     def modificarSimbolo(self,identificador,valor):
         entorno = self
@@ -66,7 +66,7 @@ class EntornoTabla:
                 entorno = entorno.padre
         return False
 
-    def obtenerFuncion(self,identificador) -> Funcion:
+    def obtenerFuncion(self,identificador):
         entorno = self
         while entorno is not None:
             simbolo = entorno.tablaFunciones.get(identificador)
@@ -77,6 +77,16 @@ class EntornoTabla:
 
         return None
 
-    def agregarFuncion(self,funcionAdd:Funcion):
+    def agregarFuncion(self,funcionAdd):
         self.tablaFunciones[funcionAdd.identificador] = funcionAdd
         #print(f"funcion {funcionAdd.identificador} agregada con exito")
+
+    def actualizarFuncion(self,funcion):
+        entorno = self
+        while entorno is not None:
+            simbolo = entorno.tablaFunciones.get(funcion.identificador)
+            if simbolo is not None:
+                entorno.tablaFunciones[funcion.identificador] = funcion
+                return
+            else:
+                entorno = entorno.padre

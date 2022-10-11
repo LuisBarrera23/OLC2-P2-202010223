@@ -8,6 +8,9 @@ class Primitivo(Expresion):
     def __init__(self,valor,tipo):
         self.valor=valor
         self.tipo=tipo
+        
+        self.etiquetaVerdadera = ""
+        self.etiquetaFalsa = ""
 
     def obtener3D(self,entorno):
         codigoSalida=""
@@ -36,10 +39,19 @@ class Primitivo(Expresion):
         elif(self.tipo==TipoDato.BOOL):
             temp1=s.obtenerTemporal()
             codigoSalida=""
-            if self.valor:
-                codigoSalida+=f"{temp1} = {1};\n"
+            if self.etiquetaVerdadera != "" and self.valor == True:
+                codigoSalida += f"goto {self.etiquetaVerdadera};\n"
+                retorno.etiquetaV = self.etiquetaVerdadera
+                retorno.etiquetaF = self.etiquetaFalsa
+            elif self.etiquetaFalsa != "" and self.valor == False:
+                codigoSalida += f"goto {self.etiquetaFalsa};\n"
+                retorno.etiquetaV = self.etiquetaVerdadera
+                retorno.etiquetaF = self.etiquetaFalsa
             else:
-                codigoSalida+=f"{temp1} = {0};\n"
+                if self.valor == True:
+                    codigoSalida += f'{temp1} = 1;\n'
+                else:
+                    codigoSalida += f'{temp1} = 0;\n'
             retorno.iniciarRetorno(codigoSalida,"",temp1,self.tipo)
             return retorno
         elif(self.tipo==TipoDato.CHAR):

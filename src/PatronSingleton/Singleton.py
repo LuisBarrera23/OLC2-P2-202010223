@@ -17,6 +17,7 @@ class Singleton:
         self.etiquetas = 0
         self.codigo = ""
         self.main = ""
+        self.funciones=""
         self.errores = []
         if Singleton.__instance != None:
             raise Exception("This class is a singleton!")
@@ -28,6 +29,7 @@ class Singleton:
         self.temporales = 0
         self.etiquetas = 0
         self.codigo = ""
+        self.funciones = ""
         self.main = ""
         self.errores = []
 
@@ -63,9 +65,13 @@ class Singleton:
     def agregarInstruccion(self, codigo):
         self.main += codigo+"\n"
 
+    def agregarFuncion(self, codigo):
+        self.funciones += codigo+"\n"
+
     def generarMain(self):
         codigo = self.generarEncabezado()
         codigo += self.codigo+"\n"
+        codigo += self.funciones+"\n"
         codigo += "int main(){\n"
         codigo += f"{self.main}\n"
         codigo += "return 0;\n}"

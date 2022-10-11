@@ -19,25 +19,24 @@ class While(Instruccion):
 
     def Ejecutar(self, entorno):
         s=Singleton.getInstance()
-        E1:RetornoType=self.condicion.obtenerValor(entorno)
+        self.condicion.etiquetaVerdadera=s.obtenerEtiqueta()
+        self.condicion.etiquetaFalsa=s.obtenerEtiqueta()
+        E1:RetornoType=self.condicion.obtener3D(entorno)
         if E1.tipo!=TipoDato.BOOL:
             raise Exception(s.addError(Error(f"Instruccion while necesita una expresion booleana",self.linea,self.columna)))
-        bandera=True
-        
-        while bandera:
-            nuevoEntorno=EntornoTabla(entorno)
-            condicion:RetornoType=self.condicion.obtenerValor(nuevoEntorno)
-            if condicion.valor:
-                for i in self.bloque:
-                    retorno=i.Ejecutar(nuevoEntorno)
-                    if isinstance(retorno,Continue):
-                        break
-                    elif isinstance(retorno,Return):
-                        return retorno
-                    elif isinstance(retorno, Break):
-                        if retorno.expresion==None:
-                            return
-                        else:
-                            raise Exception(s.addError(Error("Break en while no debe llevar expresiones",retorno.linea,retorno.columna)))
-            else:
-                return
+        etqCiclo=s.obtenerEtiqueta()
+        codigoSalida=""
+        codigoSalida+="/* WHILE */\n"
+        codigoSalida+=f"{etqCiclo}:\n"
+        codigoSalida+=E1.codigo
+        codigoSalida+=f"{E1.etiquetaV}:\n"
+        codigoSalida+=self.EjecutarBloque(entorno,self.bloque)
+        codigoSalida += f"goto {etqCiclo};\n"
+        codigoSalida+=f"{E1.etiquetaF}:\n"
+        return codigoSalida
+
+    def EjecutarBloque(self,entorno,lista):
+        codigoSalida = ""
+        for i in lista :
+            codigoSalida += i.Ejecutar(entorno)
+        return codigoSalida

@@ -249,13 +249,13 @@ def p_funcion(t):
                 | FN ID PIZQ parametros PDER bloque
                 | FN ID PIZQ parametros PDER FLECHA tipo_dato bloque """
     if len(t)==6:
-        t[0] = Funcion(t[2],TipoDato.ERROR,t[5],[],t.lexer.lineno,find_column(entrada,t.slice[1]))
+        t[0] = Funcion(t[2],[],t[5],TipoDato.ERROR,t.lexer.lineno,find_column(entrada,t.slice[1]))
     elif len(t)==8:
-        t[0] = Funcion(t[2],t[6],t[7],[],t.lexer.lineno,find_column(entrada,t.slice[1]))
+        t[0] = Funcion(t[2],[],t[7],t[6],t.lexer.lineno,find_column(entrada,t.slice[1]))
     elif len(t)==7:
-        t[0] = Funcion(t[2],TipoDato.ERROR,t[6],t[4],t.lexer.lineno,find_column(entrada,t.slice[1]))
+        t[0] = Funcion(t[2],t[4],t[6],TipoDato.ERROR,t.lexer.lineno,find_column(entrada,t.slice[1]))
     elif len(t)==9:
-        t[0] = Funcion(t[2],t[7],t[8],t[4],t.lexer.lineno,find_column(entrada,t.slice[1]))
+        t[0] = Funcion(t[2],t[4],t[8],t[7],t.lexer.lineno,find_column(entrada,t.slice[1]))
 
 def p_lista_parametros(t):
     """ parametros : parametros COMA parametro """
@@ -273,7 +273,7 @@ def p_parametro(t):
                 | ID DOBLEPT Y MUT dimensiones
                 | ID DOBLEPT Y MUT VECM MENOR tipo_dato MAYOR"""
     if len(t)==4:
-        t[0] = Parametro(t[1],t[3],t.lexer.lineno,find_column(entrada,t.slice[2]))
+        t[0] = Declaracion(t[1],None,True,t.lexer.lineno,find_column(entrada,t.slice[2]),t[3])
     elif len(t)==6:
         t[0]=Parametro(t[1],t[5],t.lexer.lineno,find_column(entrada,t.slice[2]),True)
     elif len(t)==9:

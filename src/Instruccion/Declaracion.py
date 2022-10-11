@@ -4,7 +4,6 @@ from src.Symbol.Symbol import Simbolo
 
 from src.PatronSingleton.Singleton import Singleton
 from src.Symbol.Error import Error
-from src.Symbol.EntornoTabla import EntornoTabla
 
 class Declaracion(Instruccion):
     def __init__(self, id, expresion, mutable,linea,columna, tipo=None):
@@ -21,6 +20,7 @@ class Declaracion(Instruccion):
         
     def Ejecutar(self, entorno):
         codigoSalida=""
+        print(entorno.tamaño)
         existe=entorno.existeSimboloEnEntornoActual(self.id)
         s=Singleton.getInstance()
         if existe:
@@ -50,7 +50,6 @@ class Declaracion(Instruccion):
             nueva=Simbolo()
             nueva.Simbolo_primitivo(self.id,None,valor.tipo,self.linea,self.columna,tamaño,self.mutable)
             entorno.agregarSimbolo(nueva)
-            entorno.tamaño+=1
             return codigoSalida
         else:
             if valor.tipo==TipoDato.I64 and self.tipo==TipoDato.USIZE:
@@ -61,7 +60,6 @@ class Declaracion(Instruccion):
                 nueva=Simbolo()
                 nueva.Simbolo_primitivo(self.id,None,self.tipo,self.linea,self.columna,tamaño,self.mutable)
                 entorno.agregarSimbolo(nueva)
-                entorno.tamaño+=1
                 return codigoSalida
             elif valor.tipo==self.tipo:
                 codigoSalida += "/* DECLARACIÓN DE UNA VARIABLE */\n"
@@ -71,7 +69,6 @@ class Declaracion(Instruccion):
                 nueva=Simbolo()
                 nueva.Simbolo_primitivo(self.id,None,self.tipo,self.linea,self.columna,tamaño,self.mutable)
                 entorno.agregarSimbolo(nueva)
-                entorno.tamaño+=1
                 return codigoSalida
             else:
                 raise Exception(s.addError(Error("Tipo de expresion no coincide con el tipo de dato especificado",self.linea,self.columna)))

@@ -31,16 +31,22 @@ def ejecutar():
     #print(AST)
     for i in AST:
         try:
-            i.Ejecutar(EntornoPadre)
+            if isinstance(i,Funcion):
+                existe=EntornoPadre.existeFuncion(i.identificador)
+                if existe:
+                    s.addError(Error(f"Funcion {i.identificador} ya existe",i.linea,i.columna))
+                else:
+                    EntornoPadre.agregarFuncion(funcionAdd=i)
         except:
             print("error.........................")
-
-    if EntornoPadre.existeFuncion("main"):
-        funcion:Funcion=EntornoPadre.obtenerFuncion("main")
-        funcion.Ejecutar_main(EntornoPadre)
-
+    
+    main=EntornoPadre.existeFuncion("main")
+    if main:
+        principal=EntornoPadre.obtenerFuncion("main")
+        for instruccion in principal.bloque:
+            s.agregarInstruccion(instruccion.Ejecutar(EntornoPadre))
     else:
-        s.addError(Error("Debe existir la funcion main",0,0))
+        s.addError(Error(f"No existe funcion main()",0,0))
 
     print("ERRORES-----------------------------------------")
     errores:Error=s.getErrores()

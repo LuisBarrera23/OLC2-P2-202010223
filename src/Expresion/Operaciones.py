@@ -3,6 +3,7 @@ from src.Abstract.Expresion import Expresion
 from src.Abstract.RetornoType import RetornoType, TipoDato
 from src.PatronSingleton.Singleton import Singleton
 from src.Symbol.Error import Error
+from src.Instruccion.Llamada import Llamada
 
 class TIPO_OPERACION(Enum):
     SUMA = 1,
@@ -45,7 +46,7 @@ class Operacion(Expresion):
         if self.unario:
             RetornoUnario:RetornoType=self.izquierda.obtener3D(entorno)
             if RetornoUnario.tipo==TipoDato.I64:
-                codigoSalida6+="/* NEGACION DE ENTERO */\n"
+                codigoSalida+="/* NEGACION DE ENTERO */\n"
                 codigoSalida+=RetornoUnario.codigo
                 codigoSalida+=f"{RetornoUnario.temporal} = {RetornoUnario.temporal} * -1;\n"
                 retorno=RetornoType()
@@ -83,46 +84,35 @@ class Operacion(Expresion):
             if self.tipo==TIPO_OPERACION.SUMA:
                 E1:RetornoType=self.izquierda.obtener3D(entorno)
                 E2:RetornoType=self.derecha.obtener3D(entorno)
-                temp1=s.obtenerTemporal()
-                if E1.tipo==TipoDato.F64 and E2.tipo==TipoDato.F64:
-                    codigoSalida+="/* SUMA */\n"
+                codigoSalida+="/* SUMA */\n"
+                if isinstance(E1,Llamada):
                     codigoSalida += E1.codigo +"\n"
                     codigoSalida += E2.codigo +"\n"
+                else:
+                    codigoSalida += E2.codigo +"\n"
+                    codigoSalida += E1.codigo +"\n"
+                temp1=s.obtenerTemporal()
+                if E1.tipo==TipoDato.F64 and E2.tipo==TipoDato.F64:
                     codigoSalida += f'{temp1} = {E1.temporal} + {E2.temporal};\n'
                     retorno.iniciarRetorno(codigoSalida,"",temp1,TipoDato.F64)
                     return retorno
                 elif E1.tipo==TipoDato.I64 and E2.tipo==TipoDato.I64:
-                    codigoSalida+="/* SUMA */\n"
-                    codigoSalida += E1.codigo +"\n"
-                    codigoSalida += E2.codigo +"\n"
-                    codigoSalida += f'{temp1} = {E1.temporal} + {E2.temporal};\n'
+                    codigoSalida += f'{temp1} = (int){E1.temporal} + (int){E2.temporal};\n'
                     retorno.iniciarRetorno(codigoSalida,"",temp1,TipoDato.I64)
                     return retorno
                 elif E1.tipo==TipoDato.I64 and E2.tipo==TipoDato.USIZE:
-                    codigoSalida+="/* SUMA */\n"
-                    codigoSalida += E1.codigo +"\n"
-                    codigoSalida += E2.codigo +"\n"
-                    codigoSalida += f'{temp1} = {E1.temporal} + {E2.temporal};\n'
+                    codigoSalida += f'{temp1} = (int){E1.temporal} + (int){E2.temporal};\n'
                     retorno.iniciarRetorno(codigoSalida,"",temp1,TipoDato.USIZE)
                     return retorno
                 elif E1.tipo==TipoDato.USIZE and E2.tipo==TipoDato.I64:
-                    codigoSalida+="/* SUMA */\n"
-                    codigoSalida += E1.codigo +"\n"
-                    codigoSalida += E2.codigo +"\n"
-                    codigoSalida += f'{temp1} = {E1.temporal} + {E2.temporal};\n'
+                    codigoSalida += f'{temp1} = (int){E1.temporal} + (int){E2.temporal};\n'
                     retorno.iniciarRetorno(codigoSalida,"",temp1,TipoDato.USIZE)
                     return retorno
                 elif E1.tipo==TipoDato.USIZE and E2.tipo==TipoDato.USIZE:
-                    codigoSalida+="/* SUMA */\n"
-                    codigoSalida += E1.codigo +"\n"
-                    codigoSalida += E2.codigo +"\n"
-                    codigoSalida += f'{temp1} = {E1.temporal} + {E2.temporal};\n'
+                    codigoSalida += f'{temp1} = (int){E1.temporal} + (int){E2.temporal};\n'
                     retorno.iniciarRetorno(codigoSalida,"",temp1,TipoDato.USIZE)
                     return retorno
                 elif E1.tipo==TipoDato.STRING and E2.tipo==TipoDato.STR:
-                    codigoSalida+="/* SUMA */\n"
-                    codigoSalida += E1.codigo +"\n"
-                    codigoSalida += E2.codigo +"\n"
                     codigoSalida += f'{temp1} = HP;\n'
                     codigoSalida += self.operacionConcatenar(entorno,E1)
                     codigoSalida += self.operacionConcatenar(entorno,E2)
@@ -131,9 +121,6 @@ class Operacion(Expresion):
                     retorno.iniciarRetorno(codigoSalida,"",temp1,TipoDato.STRING)
                     return retorno
                 elif E1.tipo==TipoDato.STR and E2.tipo==TipoDato.STRING:
-                    codigoSalida+="/* SUMA */\n"
-                    codigoSalida += E1.codigo +"\n"
-                    codigoSalida += E2.codigo +"\n"
                     codigoSalida += f'{temp1} = HP;\n'
                     codigoSalida += self.operacionConcatenar(entorno,E1)
                     codigoSalida += self.operacionConcatenar(entorno,E2)
@@ -148,40 +135,36 @@ class Operacion(Expresion):
             elif self.tipo==TIPO_OPERACION.RESTA:
                 E1:RetornoType=self.izquierda.obtener3D(entorno)
                 E2:RetornoType=self.derecha.obtener3D(entorno)
-                temp1=s.obtenerTemporal()
-                if E1.tipo==TipoDato.F64 and E2.tipo==TipoDato.F64:
-                    codigoSalida+="/* RESTA */\n"
+                codigoSalida+="/* RESTA */\n"
+                if isinstance(E1,Llamada):
                     codigoSalida += E1.codigo +"\n"
                     codigoSalida += E2.codigo +"\n"
+                elif isinstance(E2,Llamada):
+                    codigoSalida += E2.codigo +"\n"
+                    codigoSalida += E1.codigo +"\n"
+                else:
+                    codigoSalida += E1.codigo +"\n"
+                    codigoSalida += E2.codigo +"\n"
+
+                temp1=s.obtenerTemporal()
+                if E1.tipo==TipoDato.F64 and E2.tipo==TipoDato.F64:
                     codigoSalida += f'{temp1} = {E1.temporal} - {E2.temporal};\n'
                     retorno.iniciarRetorno(codigoSalida,"",temp1,TipoDato.F64)
                     return retorno
                 elif E1.tipo==TipoDato.I64 and E2.tipo==TipoDato.I64:
-                    codigoSalida+="/* RESTA */\n"
-                    codigoSalida += E1.codigo +"\n"
-                    codigoSalida += E2.codigo +"\n"
-                    codigoSalida += f'{temp1} = {E1.temporal} - {E2.temporal};\n'
+                    codigoSalida += f'{temp1} = (int){E1.temporal} - (int){E2.temporal};\n'
                     retorno.iniciarRetorno(codigoSalida,"",temp1,TipoDato.I64)
                     return retorno
                 elif E1.tipo==TipoDato.I64 and E2.tipo==TipoDato.USIZE:
-                    codigoSalida+="/* RESTA */\n"
-                    codigoSalida += E1.codigo +"\n"
-                    codigoSalida += E2.codigo +"\n"
-                    codigoSalida += f'{temp1} = {E1.temporal} - {E2.temporal};\n'
+                    codigoSalida += f'{temp1} = (int){E1.temporal} - (int){E2.temporal};\n'
                     retorno.iniciarRetorno(codigoSalida,"",temp1,TipoDato.USIZE)
                     return retorno
                 elif E1.tipo==TipoDato.USIZE and E2.tipo==TipoDato.I64:
-                    codigoSalida+="/* RESTA */\n"
-                    codigoSalida += E1.codigo +"\n"
-                    codigoSalida += E2.codigo +"\n"
-                    codigoSalida += f'{temp1} = {E1.temporal} - {E2.temporal};\n'
+                    codigoSalida += f'{temp1} = (int){E1.temporal} - (int){E2.temporal};\n'
                     retorno.iniciarRetorno(codigoSalida,"",temp1,TipoDato.USIZE)
                     return retorno
                 elif E1.tipo==TipoDato.USIZE and E2.tipo==TipoDato.USIZE:
-                    codigoSalida+="/* RESTA */\n"
-                    codigoSalida += E1.codigo +"\n"
-                    codigoSalida += E2.codigo +"\n"
-                    codigoSalida += f'{temp1} = {E1.temporal} - {E2.temporal};\n'
+                    codigoSalida += f'{temp1} = (int){E1.temporal} - (int){E2.temporal};\n'
                     retorno.iniciarRetorno(codigoSalida,"",temp1,TipoDato.USIZE)
                     return retorno
                 else:
@@ -190,18 +173,19 @@ class Operacion(Expresion):
             elif self.tipo==TIPO_OPERACION.MULTIPLICACION:
                 E1:RetornoType=self.izquierda.obtener3D(entorno)
                 E2:RetornoType=self.derecha.obtener3D(entorno)
-                temp1=s.obtenerTemporal()
-                if E1.tipo==TipoDato.F64 and E2.tipo==TipoDato.F64:
-                    codigoSalida+="/* MULTIPLICACION */\n"
+                codigoSalida+="/* MULTIPLICACION */\n"
+                if isinstance(E1,Llamada):
                     codigoSalida += E1.codigo +"\n"
                     codigoSalida += E2.codigo +"\n"
+                else:
+                    codigoSalida += E2.codigo +"\n"
+                    codigoSalida += E1.codigo +"\n"
+                temp1=s.obtenerTemporal()
+                if E1.tipo==TipoDato.F64 and E2.tipo==TipoDato.F64:
                     codigoSalida += f'{temp1} = {E1.temporal} * {E2.temporal};\n'
                     retorno.iniciarRetorno(codigoSalida,"",temp1,TipoDato.F64)
                     return retorno
                 elif E1.tipo==TipoDato.I64 and E2.tipo==TipoDato.I64:
-                    codigoSalida+="/* MULTIPLICACION */\n"
-                    codigoSalida += E1.codigo +"\n"
-                    codigoSalida += E2.codigo +"\n"
                     codigoSalida += f'{temp1} = {E1.temporal} * {E2.temporal};\n'
                     retorno.iniciarRetorno(codigoSalida,"",temp1,TipoDato.I64)
                     return retorno
@@ -211,11 +195,15 @@ class Operacion(Expresion):
             elif self.tipo==TIPO_OPERACION.DIVISION:
                 E1:RetornoType=self.izquierda.obtener3D(entorno)
                 E2:RetornoType=self.derecha.obtener3D(entorno)
-                temp1=s.obtenerTemporal()
-                if E1.tipo==TipoDato.F64 and E2.tipo==TipoDato.F64:
-                    codigoSalida+="/* DIVISION */\n"
+                codigoSalida+="/* DIVISION */\n"
+                if isinstance(E1,Llamada):
                     codigoSalida += E1.codigo +"\n"
                     codigoSalida += E2.codigo +"\n"
+                else:
+                    codigoSalida += E2.codigo +"\n"
+                    codigoSalida += E1.codigo +"\n"
+                temp1=s.obtenerTemporal()
+                if E1.tipo==TipoDato.F64 and E2.tipo==TipoDato.F64:
                     etqVerdadera = s.obtenerEtiqueta()
                     codigoSalida += f"if ({E2.temporal} != 0) goto {etqVerdadera};\n"
                     codigoSalida += f"  printf(\"%c\", 77);\n"
@@ -239,9 +227,6 @@ class Operacion(Expresion):
                     retorno.iniciarRetorno(codigoSalida,"",temp1,TipoDato.F64)
                     return retorno
                 elif E1.tipo==TipoDato.I64 and E2.tipo==TipoDato.I64:
-                    codigoSalida+="/* DIVISION */\n"
-                    codigoSalida += E1.codigo +"\n"
-                    codigoSalida += E2.codigo +"\n"
                     etqVerdadera = s.obtenerEtiqueta()
                     codigoSalida += f"if ({E2.temporal} != 0) goto {etqVerdadera};\n"
                     codigoSalida += f"  printf(\"%c\", 77);\n"
@@ -271,14 +256,18 @@ class Operacion(Expresion):
             elif self.tipo==TIPO_OPERACION.POTENCIA:
                 E1:RetornoType=self.izquierda.obtener3D(entorno)
                 E2:RetornoType=self.derecha.obtener3D(entorno)
+                codigoSalida+="/* POTENCIA */\n"
+                if isinstance(E1,Llamada):
+                    codigoSalida += E1.codigo +"\n"
+                    codigoSalida += E2.codigo +"\n"
+                else:
+                    codigoSalida += E2.codigo +"\n"
+                    codigoSalida += E1.codigo +"\n"
                 temp1=s.obtenerTemporal()
                 if E1.tipo==TipoDato.F64 and E2.tipo==TipoDato.F64 and self.tipo2==TipoDato.F64:
                     etqCiclo=s.obtenerEtiqueta()
                     etqSalida=s.obtenerEtiqueta()
                     temp2=s.obtenerTemporal()
-                    codigoSalida+="/* POTENCIA */\n"
-                    codigoSalida += f"{E1.codigo}\n"
-                    codigoSalida += f"{E2.codigo}\n"
                     codigoSalida += f"{temp2} = 1;\n"
                     codigoSalida += f"{temp1} = {E1.temporal};\n"
                     codigoSalida += f"if ({E2.temporal} > 0) goto {etqCiclo};\n"
@@ -296,9 +285,6 @@ class Operacion(Expresion):
                     etqCiclo=s.obtenerEtiqueta()
                     etqSalida=s.obtenerEtiqueta()
                     temp2=s.obtenerTemporal()
-                    codigoSalida+="/* POTENCIA */\n"
-                    codigoSalida += f"{E1.codigo}\n"
-                    codigoSalida += f"{E2.codigo}\n"
                     codigoSalida += f"{temp2} = 1;\n"
                     codigoSalida += f"{temp1} = {E1.temporal};\n"
                     codigoSalida += f"if ({E2.temporal} > 0) goto {etqCiclo};\n"
@@ -319,11 +305,15 @@ class Operacion(Expresion):
             elif self.tipo==TIPO_OPERACION.MODULO:
                 E1:RetornoType=self.izquierda.obtener3D(entorno)
                 E2:RetornoType=self.derecha.obtener3D(entorno)
-                temp1=s.obtenerTemporal()
-                if E1.tipo==TipoDato.F64 and E2.tipo==TipoDato.F64:
-                    codigoSalida+="/* MODULO */\n"
+                codigoSalida+="/* MODULO */\n"
+                if isinstance(E1,Llamada):
                     codigoSalida += E1.codigo +"\n"
                     codigoSalida += E2.codigo +"\n"
+                else:
+                    codigoSalida += E2.codigo +"\n"
+                    codigoSalida += E1.codigo +"\n"
+                temp1=s.obtenerTemporal()
+                if E1.tipo==TipoDato.F64 and E2.tipo==TipoDato.F64:
                     etqVerdadera = s.obtenerEtiqueta()
                     codigoSalida += f"if ({E2.temporal} != 0) goto {etqVerdadera};\n"
                     codigoSalida += f"  printf(\"%c\", 77);\n"
@@ -347,9 +337,6 @@ class Operacion(Expresion):
                     retorno.iniciarRetorno(codigoSalida,"",temp1,TipoDato.F64)
                     return retorno
                 elif E1.tipo==TipoDato.I64 and E2.tipo==TipoDato.I64:
-                    codigoSalida+="/* MODULO */\n"
-                    codigoSalida += E1.codigo +"\n"
-                    codigoSalida += E2.codigo +"\n"
                     etqVerdadera = s.obtenerEtiqueta()
                     codigoSalida += f"if ({E2.temporal} != 0) goto {etqVerdadera};\n"
                     codigoSalida += f"  printf(\"%c\", 77);\n"

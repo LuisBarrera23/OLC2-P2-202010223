@@ -21,16 +21,15 @@ class If_i(Instruccion):
     def Ejecutar(self, entorno):
         s=Singleton.getInstance()
         codigoSalida=""
-        nuevoEntorno=EntornoTabla(entorno)
         etqSalida=s.obtenerEtiqueta()
-        self.condicion.etiquetaVerdadera=s.obtenerTemporal()
-        self.condicion.etiquetaFalsa=s.obtenerTemporal()
+        self.condicion.etiquetaVerdadera=s.obtenerEtiqueta()
+        self.condicion.etiquetaFalsa=s.obtenerEtiqueta()
         condicion=self.condicion.obtener3D(entorno)
         
         codigoSalida += "/* INSTRUCCION IF */\n"
         codigoSalida += condicion.codigo
         codigoSalida += f"{condicion.etiquetaV}: \n"
-        codigoSalida += self.EjecutarBloque(nuevoEntorno,self.Bloqueverdadero)
+        codigoSalida += self.EjecutarBloque(entorno,self.Bloqueverdadero)
         codigoSalida += f"goto {etqSalida};\n"
         codigoSalida += f"{condicion.etiquetaF}:\n"
 
@@ -44,7 +43,6 @@ class If_i(Instruccion):
             codigoSalida += self.EjecutarBloque(entorno, e.Bloqueverdadero)
             codigoSalida += f"goto {etqSalida};\n"
             codigoSalida += f"{exp.etiquetaF}:\n"
-
         codigoSalida+=self.EjecutarBloque(entorno,self.BloqueElse)
         codigoSalida += f"{etqSalida}:\n"
         return codigoSalida

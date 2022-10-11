@@ -35,11 +35,13 @@ class Simbolo:
         self.direccionRelativa=direccionRelativa
         self.editable=editable
     
-    def Simbolo_funcion(self, identificador, parametros, instrucciones, tipo=None):
+    def Simbolo_funcion(self, identificador, parametros, instrucciones,linea,columna, tipo=None):
         self.identificador=identificador
         self.parametros=parametros
         self.instrucciones=instrucciones
         self.tipo=tipo
+        self.linea=linea
+        self.columna=columna
 
     def Simbolo_arreglo(self,tipo, dimensiones, valores):
         self.tipo=tipo
