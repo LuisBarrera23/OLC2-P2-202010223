@@ -1,3 +1,4 @@
+from src.Instruccion.Declaracion import Declaracion
 from src.Abstract.Instruccion import Instruccion
 from src.Abstract.RetornoType import RetornoType,TipoDato
 from src.Symbol.EntornoTabla import EntornoTabla
@@ -11,6 +12,7 @@ from src.Instruccion.Return import Return
 
 from src.Symbol.ArrayInstancia import ArrayInstancia
 from src.Expresion.AccesoSimbolo import AccesoSimbolo
+from src.Expresion.Primitivo import Primitivo
 
 class For(Instruccion):
     def __init__(self, variable, valor1, valor2, tipofor, bloque,linea, columna):
@@ -25,88 +27,57 @@ class For(Instruccion):
     def Ejecutar(self, entorno):
         s=Singleton.getInstance()
         if self.tipofor==1:
-            E1=self.valor1.obtenerValor(entorno)
-            E2=self.valor2.obtenerValor(entorno)
+            codigoSalida="/* FOR TIPO 1 */\n"
+            E1:RetornoType=self.valor1.obtener3D(entorno)
+            E2:RetornoType=self.valor2.obtener3D(entorno)
+
+            etqCiclo=s.obtenerEtiqueta()
+            etqActualizar=s.obtenerEtiqueta()
+            etqSalida=s.obtenerEtiqueta()
+
+            temp1=s.obtenerTemporal()
+            temp2=s.obtenerTemporal()
             if E1.tipo!=TipoDato.I64 or E2.tipo!=TipoDato.I64:
                 raise Exception(s.addError(Error(f"El rango del for necesita ser de tipo I64",self.linea,self.columna)))
 
-            if E1.valor > E2.valor:
-                raise Exception(s.addError(Error(f"El rango del for necesita ser ascendente",self.linea,self.columna)))
-
-            for n in range(E1.valor,E2.valor):
-                env=EntornoTabla(entorno)
-                nuevo=Simbolo()
-                nuevo.Simbolo_primitivo(self.variable,n,TipoDato.I64,self.linea,self.columna,True)
-                env.agregarSimbolo(nuevo)
-                retorno=None
-                for i in self.bloque:
-                    retorno=i.Ejecutar(env)
-                    if isinstance(retorno,Return):
-                        return retorno
-                    elif isinstance(retorno,Break):
-                        break
-                    elif isinstance(retorno,Continue):
-                        break
-                if isinstance(retorno,Break):
-                    if retorno.expresion==None:
-                        return
-                    else:
-                        raise Exception(s.addError(Error("Break en ciclo for no debe llevar expresiones",retorno.linea,retorno.columna)))
+            codigoSalida+=E1.codigo
+            codigoSalida+=E2.codigo
+            nuevoEntorno=EntornoTabla(entorno)
+            nuevoEntorno.tamaño=entorno.tamaño
+            variable=Declaracion(self.variable,None,True,self.linea,self.columna,TipoDato.I64)
+            variable.expresionCompilada=E1
+            codigoSalida+=variable.Ejecutar(nuevoEntorno)
+            codigoSalida+=f"{etqCiclo}:\n"
+            Acceso=AccesoSimbolo(self.variable,self.linea,self.columna).obtener3D(nuevoEntorno)
+            codigoSalida+=Acceso.codigo
+            codigoSalida += f"if({Acceso.temporal} >= {E2.temporal}) goto {etqSalida};\n"
+            codigoSalida += self.EjecutarBloque(nuevoEntorno,self.bloque)
+            codigoSalida+=f"{etqActualizar}:\n"
+            codigoSalida += "/* ACTUALIZACION DEL ITERADOR */\n"
+            variable:Simbolo=nuevoEntorno.obtenerSimbolo(self.variable)
+            codigoSalida += f'{temp1} = SP + {variable.direccionRelativa}; \n'
+            codigoSalida += f'{temp2} = Stack[(int) {temp1}]; \n'
+            codigoSalida += f'Stack[(int) {temp1}] = {temp2} + 1;\n'
+            codigoSalida += f"  goto {etqCiclo};\n"
+            codigoSalida+=f"{etqSalida}:\n"
+            codigoSalida=codigoSalida.replace("REEMPLAZOBREAK",etqSalida)
+            codigoSalida=codigoSalida.replace("REEMPLAZOCONTINUE",etqActualizar)
+            return codigoSalida
 
 
         elif self.tipofor==2:
-            E1=self.valor1.obtenerValor(entorno)
-            if E1.tipo!=TipoDato.STR:
-                raise Exception(s.addError(Error(f"For con chars necesita una expresion tipo STR",self.linea,self.columna)))
-
-            for n in E1.valor:
-                env=EntornoTabla(entorno)
-                nuevo=Simbolo()
-                nuevo.Simbolo_primitivo(self.variable,n,TipoDato.CHAR,self.linea,self.columna,True)
-                env.agregarSimbolo(nuevo)
-                retorno=None
-                for i in self.bloque:
-                    retorno=i.Ejecutar(env)
-                    if isinstance(retorno,Return):
-                        return retorno
-                    elif isinstance(retorno,Break):
-                        break
-                    elif isinstance(retorno,Continue):
-                        break
-                if isinstance(retorno,Break):
-                    if retorno.expresion==None:
-                        return
-                    else:
-                        raise Exception(s.addError(Error("Break en ciclo for no debe llevar expresiones",retorno.linea,retorno.columna)))
+            pass
         elif self.tipofor==3:
-            print("holaaaa")
-            E=self.valor1.obtenerValor(entorno)
-            vector=[]
-            print(E.valor)
-            if isinstance(E.valor,ArrayInstancia):
-                vector=E.valor.valores
-            
-
-            for n in vector:
-                env=EntornoTabla(entorno)
-                nuevo=Simbolo()
-                nuevo.Simbolo_primitivo(self.variable,n,E.valor.tipo,self.linea,self.columna,True)
-                env.agregarSimbolo(nuevo)
-                retorno=None
-                for i in self.bloque:
-                    retorno=i.Ejecutar(env)
-                    if isinstance(retorno,Return):
-                        return retorno
-                    elif isinstance(retorno,Break):
-                        break
-                    elif isinstance(retorno,Continue):
-                        break
-                if isinstance(retorno,Break):
-                    if retorno.expresion==None:
-                        return
-                    else:
-                        raise Exception(s.addError(Error("Break en ciclo for no debe llevar expresiones",retorno.linea,retorno.columna)))
+            pass
             
 
         return
+
+    
+
+    def EjecutarBloque(self,entorno,lista):
+        codigoSalida = ""
+        for i in lista :
+            codigoSalida += i.Ejecutar(entorno)
+        return codigoSalida
         

@@ -29,7 +29,9 @@ class If_i(Instruccion):
         codigoSalida += "/* INSTRUCCION IF */\n"
         codigoSalida += condicion.codigo
         codigoSalida += f"{condicion.etiquetaV}: \n"
-        codigoSalida += self.EjecutarBloque(entorno,self.Bloqueverdadero)
+        nuevoEntorno=EntornoTabla(entorno)
+        nuevoEntorno.tamaño=entorno.tamaño
+        codigoSalida += self.EjecutarBloque(nuevoEntorno,self.Bloqueverdadero)
         codigoSalida += f"goto {etqSalida};\n"
         codigoSalida += f"{condicion.etiquetaF}:\n"
 
@@ -40,10 +42,14 @@ class If_i(Instruccion):
             codigoSalida += "\n/* INSTRUCCION ELSE IF*/\n"
             codigoSalida += exp.codigo
             codigoSalida += f"{exp.etiquetaV}:\n"
-            codigoSalida += self.EjecutarBloque(entorno, e.Bloqueverdadero)
+            nuevoEntorno=EntornoTabla(entorno)
+            nuevoEntorno.tamaño=entorno.tamaño
+            codigoSalida += self.EjecutarBloque(nuevoEntorno, e.Bloqueverdadero)
             codigoSalida += f"goto {etqSalida};\n"
             codigoSalida += f"{exp.etiquetaF}:\n"
-        codigoSalida+=self.EjecutarBloque(entorno,self.BloqueElse)
+        nuevoEntorno=EntornoTabla(entorno)
+        nuevoEntorno.tamaño=entorno.tamaño
+        codigoSalida+=self.EjecutarBloque(nuevoEntorno,self.BloqueElse)
         codigoSalida += f"{etqSalida}:\n"
         return codigoSalida
 

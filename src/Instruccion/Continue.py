@@ -6,4 +6,7 @@ class Continue(Instruccion):
         self.columna=columna
 
     def Ejecutar(self, entorno):
-        return self
+        codigoSalida=""
+        codigoSalida+=f"/* CONTINUE */\n"
+        codigoSalida+="goto REEMPLAZOCONTINUE;\n"
+        return codigoSalida

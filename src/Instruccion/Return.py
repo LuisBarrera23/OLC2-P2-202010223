@@ -8,7 +8,6 @@ class Return(Instruccion):
         self.expresion=expresion
         self.linea=linea
         self.columna=columna
-        self.Retorno=RetornoType()
 
     def Ejecutar(self, entorno):
         #print("returnnnnn")

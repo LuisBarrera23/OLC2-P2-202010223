@@ -33,6 +33,8 @@ class While(Instruccion):
         codigoSalida+=self.EjecutarBloque(entorno,self.bloque)
         codigoSalida += f"goto {etqCiclo};\n"
         codigoSalida+=f"{E1.etiquetaF}:\n"
+        codigoSalida=codigoSalida.replace("REEMPLAZOBREAK",E1.etiquetaF)
+        codigoSalida=codigoSalida.replace("REEMPLAZOCONTINUE",etqCiclo)
         return codigoSalida
 
     def EjecutarBloque(self,entorno,lista):

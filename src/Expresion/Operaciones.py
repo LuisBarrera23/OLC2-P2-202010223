@@ -61,21 +61,36 @@ class Operacion(Expresion):
                 return retorno
             elif RetornoUnario.tipo==TipoDato.BOOL and self.tipo==TIPO_OPERACION.NOT:
                 codigoSalida=""
-                temp1=s.obtenerTemporal()
-                etq1=s.obtenerEtiqueta()
-                etq2=s.obtenerEtiqueta()
-
-                codigoSalida += RetornoUnario.codigo
-                codigoSalida += f"/* OPERACION NOT */\n"
-                codigoSalida += f"if({RetornoUnario.temporal}==1) goto {etq1};\n"
-                codigoSalida += f"  {temp1} = 1;\n"
-                codigoSalida += f"  goto {etq2};\n"
-                codigoSalida += f"{etq1}:\n"
-                codigoSalida += f"{temp1} = 0;\n"
-                codigoSalida += f"{etq2}:\n"
-                retorno=RetornoType()
-                retorno.iniciarRetorno(codigoSalida,"",temp1,TipoDato.BOOL)
-                return retorno
+                if self.etiquetaVerdadera=="" and self.etiquetaVerdadera=="":
+                    temp1=s.obtenerTemporal()
+                    etq1=s.obtenerEtiqueta()
+                    etq2=s.obtenerEtiqueta()
+                    codigoSalida += RetornoUnario.codigo
+                    codigoSalida += f"/* OPERACION NOT */\n"
+                    codigoSalida += f"if({RetornoUnario.temporal}==1) goto {etq1};\n"
+                    codigoSalida += f"  {temp1} = 1;\n"
+                    codigoSalida += f"  goto {etq2};\n"
+                    codigoSalida += f"{etq1}:\n"
+                    codigoSalida += f"{temp1} = 0;\n"
+                    codigoSalida += f"{etq2}:\n"
+                    retorno=RetornoType()
+                    retorno.iniciarRetorno(codigoSalida,"",temp1,TipoDato.BOOL)
+                    retorno.etiquetaV = self.etiquetaVerdadera
+                    retorno.etiquetaF = self.etiquetaFalsa
+                    return retorno
+                elif self.etiquetaVerdadera!="" and self.etiquetaVerdadera!="":
+                    temp1=s.obtenerTemporal()
+                    etq1=s.obtenerEtiqueta()
+                    etq2=s.obtenerEtiqueta()
+                    codigoSalida += RetornoUnario.codigo
+                    codigoSalida += f"/* OPERACION NOT */\n"
+                    codigoSalida += f"if({RetornoUnario.temporal}==0) goto {self.etiquetaVerdadera};\n"
+                    codigoSalida += f"goto {self.etiquetaFalsa};\n"
+                    retorno=RetornoType()
+                    retorno.iniciarRetorno(codigoSalida,"",temp1,TipoDato.BOOL)
+                    retorno.etiquetaV = self.etiquetaVerdadera
+                    retorno.etiquetaF = self.etiquetaFalsa
+                    return retorno
 
         else:
             retorno=RetornoType()

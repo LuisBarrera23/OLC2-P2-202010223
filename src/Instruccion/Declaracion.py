@@ -20,7 +20,6 @@ class Declaracion(Instruccion):
         
     def Ejecutar(self, entorno):
         codigoSalida=""
-        print(entorno.tamaño)
         existe=entorno.existeSimboloEnEntornoActual(self.id)
         s=Singleton.getInstance()
         if existe:
@@ -44,7 +43,7 @@ class Declaracion(Instruccion):
         
         if self.tipo==None:
             codigoSalida += "/* DECLARACIÓN DE UNA VARIABLE */\n"
-            codigoSalida += valor.codigo + '\n'
+            codigoSalida += valor.codigo
             codigoSalida += f'{temp1} = {punteroEntorno} + {tamaño}; \n'
             codigoSalida += f'Stack[(int) {temp1}] = {valor.temporal};\n'
             nueva=Simbolo()
@@ -54,7 +53,7 @@ class Declaracion(Instruccion):
         else:
             if valor.tipo==TipoDato.I64 and self.tipo==TipoDato.USIZE:
                 codigoSalida += "/* DECLARACIÓN DE UNA VARIABLE */\n"
-                codigoSalida += valor.codigo +'\n'
+                codigoSalida += valor.codigo
                 codigoSalida += f'{temp1} = {punteroEntorno} + {tamaño};\n'
                 codigoSalida += f'Stack[(int) {temp1}] = {valor.temporal};\n'
                 nueva=Simbolo()
@@ -63,7 +62,7 @@ class Declaracion(Instruccion):
                 return codigoSalida
             elif valor.tipo==self.tipo:
                 codigoSalida += "/* DECLARACIÓN DE UNA VARIABLE */\n"
-                codigoSalida += valor.codigo +'\n'
+                codigoSalida += valor.codigo
                 codigoSalida += f'{temp1} = {punteroEntorno} + {tamaño};\n'
                 codigoSalida += f'Stack[(int) {temp1}] = {valor.temporal};\n'
                 nueva=Simbolo()
