@@ -32,7 +32,7 @@
                 pestaña</button>
             <div class="tabs" id="pestañas">
 
-                <!-- Tabbed de Pacientes-->
+
                 <div class="tab">
                     <input type="radio" value="1" name="css-tabs" id="tab-1" checked class="tab-switch">
                     <label for="tab-1" class="tab-label">1</label>
@@ -79,12 +79,7 @@
             <button onclick="guardarcomo()" type="button" class="btn btn-warning"
                 style="width: 150px; margin-top: 10px; margin-bottom: 10px;">Guardar como</button>
 
-            <div>
-                <label for="graph" class="fs-2" style="color: #000; padding-top: 10px;">Reporte Grafico AST</label>
-                <button onclick="verAST()" type="button" class="btn btn-danger"
-                    style="width: 150px;  margin-bottom: 10px; margin-left: 10px;">Ver AST</button>
-                <div id="graph" style="text-align: center;"></div>
-            </div>
+
 
             <div>
                 <label for="t1" class="fs-2" style="color: #000; padding-top: 10px;">Reporte de errores</label>
@@ -122,7 +117,6 @@
                 </table>
             </div>
 
-            <div id="graficasts" style="text-align: center;"></div>
 
 
 
@@ -336,44 +330,7 @@
                 })
         }
 
-        function verAST() {
 
-            fetch('http://localhost:8080/ast', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': '*',
-                }
-            })
-                .then(res => res.json())
-                .catch(err => {
-                    console.error('Error:', err)
-                    alert("Ocurrio un error, ver la consola")
-                })
-                .then(response => {
-                    //console.log(response)
-                    d3.select("#graph").graphviz({ useWorker: false }).renderDot(response.grafica);
-                })
-        }
-
-        function graficarTS() {
-            fetch('http://localhost:8080/graficarts', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': '*',
-                }
-            })
-                .then(res => res.json())
-                .catch(err => {
-                    console.error('Error:', err)
-                    alert("Ocurrio un error, ver la consola")
-                })
-                .then(response => {
-                    //console.log(response)
-                    d3.select("#graficasts").graphviz({ useWorker: false }).renderDot(response.grafica);
-                })
-        }
 
     </script>
 </body>
