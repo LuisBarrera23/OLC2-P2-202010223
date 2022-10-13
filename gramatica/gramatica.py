@@ -666,19 +666,19 @@ def p_sqrt(t):
     t[0]= Nativa(t[1],2,t.lexer.lineno,find_column(entrada,t.slice[2]))
 
 def p_if_Expresion(t):
-    """ if_e : IF expresion LLAVEIZQ expresion LLAVEDER
-            |  IF expresion LLAVEIZQ expresion LLAVEDER ELSE LLAVEIZQ expresion LLAVEDER
-            |  IF expresion LLAVEIZQ expresion LLAVEDER listaelse
-            |  IF expresion LLAVEIZQ instruccion expresion LLAVEDER listaelse ELSE LLAVEIZQ instruccion expresion LLAVEDER"""
+    """ if_e : IF expresion LLAVEIZQ instrucciones expresion LLAVEDER
+            |  IF expresion LLAVEIZQ instrucciones expresion LLAVEDER ELSE LLAVEIZQ instrucciones expresion LLAVEDER
+            |  IF expresion LLAVEIZQ instrucciones expresion LLAVEDER listaelse
+            |  IF expresion LLAVEIZQ instrucciones expresion LLAVEDER listaelse ELSE LLAVEIZQ instrucciones expresion LLAVEDER"""
 
-    if len(t)==6:
-        t[0]=If_e(t[2],t[4],[],None,t.lexer.lineno,find_column(entrada,t.slice[1]))
-    elif len(t)==7:
-        t[0]=If_e(t[2],t[4],t[6],None,t.lexer.lineno,find_column(entrada,t.slice[1]))
-    elif len(t)==10:
-        t[0]=If_e(t[2],t[4],[],t[8],t.lexer.lineno,find_column(entrada,t.slice[1]))
+    if len(t)==7:
+        t[0]=If_e(t[2],t[4],t[5],[],[],None,t.lexer.lineno,find_column(entrada,t.slice[1]))
+    elif len(t)==12:
+        t[0]=If_e(t[2],t[4],t[5],[],t[9],t[10],t.lexer.lineno,find_column(entrada,t.slice[1]))
+    elif len(t)==8:
+        t[0]=If_e(t[2],t[4],t[5],t[7],[],None,t.lexer.lineno,find_column(entrada,t.slice[1]))
     elif len(t)==13:
-        t[0]=If_e(t[2],t[5],t[7],t[11],t.lexer.lineno,find_column(entrada,t.slice[1]),t[4],t[10])
+        t[0]=If_e(t[2],t[4],t[5],t[7],t[10],t[11],t.lexer.lineno,find_column(entrada,t.slice[1]))
 
 def p_elseif_lista(t):
     """ listaelse : listaelse elseif """
@@ -690,8 +690,8 @@ def p_elseif_otra(t):
     t[0]=[t[1]]
 
 def p_elseif_def(t):
-    """elseif : ELSE IF expresion LLAVEIZQ instruccion expresion LLAVEDER"""
-    t[0]=If_e(t[3],t[6],[],None,t.lexer.lineno,find_column(entrada,t.slice[1]),t[5])
+    """elseif : ELSE IF expresion LLAVEIZQ instrucciones expresion LLAVEDER"""
+    t[0]=If_e(t[3],t[5],t[6],[],[],None,t.lexer.lineno,find_column(entrada,t.slice[1]))
 
 def p_expresion_primitiva(t):
     """expresion : ENTERO

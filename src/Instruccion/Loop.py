@@ -1,4 +1,4 @@
-from src.Abstract.RetornoType import RetornoType
+from src.Abstract.RetornoType import RetornoType, TipoDato
 from src.Abstract.Instruccion import Instruccion
 from src.Abstract.Expresion import Expresion
 
@@ -16,38 +16,36 @@ class Loop(Instruccion,Expresion):
         self.columna=columna
 
     def Ejecutar(self, entorno):
-        s=Singleton.getInstance()
-        if self.bloque==[]:
-            raise Exception(s.addError(Error("Loop Vacio",self.linea,self.columna)))
-        
-        bandera=True
-        while bandera:
-            nuevoEntorno=EntornoTabla(entorno)
-            for i in self.bloque:
-                retorno=i.Ejecutar(nuevoEntorno)
-                if isinstance(retorno,Break):
-                    if retorno.expresion==None:
-                        bandera=False
-                        break
-                    else:
-                        bandera=False
-                        raise Exception(s.addError(Error("el break dentro de la instruccion loop no debe retornar nada",retorno.linea,retorno.columna)))
+        codigo=self.obtener3D(entorno)
+        return codigo.codigo
 
 
-    def obtenerValor(self, entorno) -> RetornoType:
+    def obtener3D(self,entorno) -> RetornoType:
         s=Singleton.getInstance()
-        if self.bloque==[]:
-            s.addError(Error("Loop Vacio",self.linea,self.columna))
-        bandera=True
         
-        while bandera:
-            nuevoEntorno=EntornoTabla(entorno)
-            for i in self.bloque:
-                retorno=i.Ejecutar(nuevoEntorno)
-                if isinstance(retorno,Break):
-                    if retorno.expresion==None:
-                        raise Exception(s.addError(Error("el break dentro de la expresion loop debe retornar una expresion",retorno.linea,retorno.columna)))
-                    else:
-                        bandera=False
-                        return retorno.Retorno
-        return RetornoType()
+        etqCiclo=s.obtenerEtiqueta()
+        etqSalida=s.obtenerEtiqueta()
+        temp=s.obtenerTemporal()
+        s.temporalLoop=temp
+        codigoSalida=""
+        codigoSalida+="/* LOOP */\n"
+
+        nuevoEntorno=EntornoTabla(entorno)
+        nuevoEntorno.tamaño=entorno.tamaño
+
+        codigoSalida+=f"{etqCiclo}:\n"
+        codigoSalida+=self.EjecutarBloque(nuevoEntorno,self.bloque)
+        codigoSalida += f"goto {etqCiclo};\n"
+        codigoSalida+=f"{etqSalida}:\n"
+
+
+        codigoSalida=codigoSalida.replace("REEMPLAZOBREAK",etqSalida)
+        retorno=RetornoType()
+        retorno.iniciarRetorno(codigoSalida,"",temp,s.tipoTemporal)
+        return retorno
+
+    def EjecutarBloque(self,entorno,lista):
+        codigoSalida = ""
+        for i in lista :
+            codigoSalida += i.Ejecutar(entorno)
+        return codigoSalida

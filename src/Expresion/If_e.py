@@ -6,63 +6,77 @@ from src.Abstract.Expresion import Expresion
 from src.Symbol.EntornoTabla import EntornoTabla
 
 class If_e(Expresion):
-    def __init__(self,condicion, expresionPrincipal, listaelseif, expresionElse,linea,columna,instruccion1=None,instruccion2=None):
-        self.condicion = condicion
-        self.expresionPrincipal = expresionPrincipal
-        self.listaelseif = listaelseif
-        self.expresionElse = expresionElse
+    def __init__(self, condicion, Bloqueverdadero,expresion1, listaElseIf, BloqueElse,expresion2,linea, columna):
+        self.condicion=condicion
+        self.Bloqueverdadero=Bloqueverdadero
+        self.expresion1=expresion1
+        self.listaElseIf=listaElseIf
+        self.BloqueElse=BloqueElse
+        self.expresion2=expresion2
         self.linea=linea
         self.columna=columna
-        self.instruccion1=instruccion1
-        self.instruccion2=instruccion2
 
-    def obtenerValor(self, entorno):
+    def obtener3D(self, entorno):
         s=Singleton.getInstance()
-        #validamos que todas las condiciones sean booleanas
-        Nuevo=EntornoTabla(entorno)
-        CondicionPrincipal=self.condicion.obtenerValor(entorno)
-        #ejecutamos y retornamos la opcion correcta
-        if CondicionPrincipal.valor==True:
-            if self.instruccion1!=None:
-                self.instruccion1.Ejecutar(entorno)
-                Principal=self.expresionPrincipal.obtenerValor(entorno)
-            else:
-                Principal=self.expresionPrincipal.obtenerValor(entorno)
-            return RetornoType(valor=Principal.valor,tipo=Principal.tipo)
-        else:
-            for elseif in self.listaelseif:
-                condicionSecundaria=elseif.condicion.obtenerValor(entorno)
-                
-                if condicionSecundaria.valor==True:
-                    if elseif.instruccion1!=None:
-                        elseif.instruccion1.Ejecutar(entorno)
-                        Secundaria=elseif.expresionPrincipal.obtenerValor(entorno)
-                    else:
-                        Secundaria=elseif.expresionPrincipal.obtenerValor(entorno)
-                    return RetornoType(valor=Secundaria.valor,tipo=Secundaria.tipo)
-            if self.expresionElse !=None:
-                if self.instruccion2!=None:
-                    self.instruccion2.Ejecutar(entorno)
-                    ValorElse=self.expresionElse.obtenerValor(entorno)
-                else:
-                    ValorElse=self.expresionElse.obtenerValor(entorno)
-                return RetornoType(valor=ValorElse.valor,tipo=ValorElse.tipo)
-            return RetornoType()
-
-
-
-        # Principal=self.expresionPrincipal.obtenerValor(entorno)
-        # if CondicionPrincipal.tipo!=TipoDato.BOOL:
-        #     raise Exception(s.addError(Error(f"Se necesita condiciones booleanas",self.linea,self.columna)))
-        # for elseif in self.listaelseif:
-        #     condicionSecundaria=elseif.condicion.obtenerValor(entorno)
-        #     Secundaria=elseif.expresionPrincipal.obtenerValor(entorno)
-        #     if condicionSecundaria.tipo != TipoDato.BOOL:
-        #         raise Exception(s.addError(Error(f"Se necesita condiciones booleanas",self.linea,self.columna)))
-        #     if Secundaria.tipo != Principal.tipo:
-        #         raise Exception(s.addError(Error(f"Todas las expresiones deben de ser del mismo tipo",self.linea,self.columna)))
-        # if self.expresionElse !=None:
-        #     ValorElse=self.expresionElse.obtenerValor(entorno)
-        #     if ValorElse.tipo != Principal.tipo:
-        #         raise Exception(s.addError(Error(f"Todas las expresiones deben de ser del mismo tipo",self.linea,self.columna)))
+        codigoSalida=""
+        etqSalida=s.obtenerEtiqueta()
+        temp=s.obtenerTemporal()
+        self.condicion.etiquetaVerdadera=s.obtenerEtiqueta()
+        self.condicion.etiquetaFalsa=s.obtenerEtiqueta()
+        condicion=self.condicion.obtener3D(entorno)
         
+        codigoSalida += "/* INSTRUCCION IF */\n"
+        codigoSalida += condicion.codigo
+        codigoSalida += f"{condicion.etiquetaV}: \n"
+
+
+        nuevoEntorno=EntornoTabla(entorno)
+        nuevoEntorno.tamaño=entorno.tamaño
+        codigoSalida += self.EjecutarBloque(nuevoEntorno,self.Bloqueverdadero)
+        E=self.expresion1.obtener3D(nuevoEntorno)
+        codigoSalida+=E.codigo
+        codigoSalida+=f"{temp} = {E.temporal};\n"
+
+
+        codigoSalida += f"goto {etqSalida};\n"
+        codigoSalida += f"{condicion.etiquetaF}:\n"
+
+        for e in self.listaElseIf:
+            e.condicion.etiquetaVerdadera=s.obtenerEtiqueta()
+            e.condicion.etiquetaFalsa=s.obtenerEtiqueta()
+            exp:RetornoType=e.condicion.obtener3D(entorno)
+            codigoSalida += "\n/* INSTRUCCION ELSE IF*/\n"
+            codigoSalida += exp.codigo
+            codigoSalida += f"{exp.etiquetaV}:\n"
+
+
+            nuevoEntorno=EntornoTabla(entorno)
+            nuevoEntorno.tamaño=entorno.tamaño
+            codigoSalida += self.EjecutarBloque(nuevoEntorno, e.Bloqueverdadero)
+            E=e.expresion1.obtener3D(nuevoEntorno)
+            codigoSalida+=E.codigo
+            codigoSalida+=f"{temp} = {E.temporal};\n"
+
+
+            codigoSalida += f"goto {etqSalida};\n"
+            codigoSalida += f"{exp.etiquetaF}:\n"
+
+
+        nuevoEntorno=EntornoTabla(entorno)
+        nuevoEntorno.tamaño=entorno.tamaño
+        codigoSalida+=self.EjecutarBloque(nuevoEntorno,self.BloqueElse)
+        E=self.expresion2.obtener3D(nuevoEntorno)
+        codigoSalida+=E.codigo
+        codigoSalida+=f"{temp} = {E.temporal};\n"
+
+        codigoSalida += f"{etqSalida}:\n"
+        retorno=RetornoType()
+        retorno.iniciarRetorno(codigoSalida,"",temp,E.tipo)
+        return retorno
+
+
+    def EjecutarBloque(self,entorno,lista):
+        codigoSalida = ""
+        for i in lista :
+            codigoSalida += i.Ejecutar(entorno)
+        return codigoSalida

@@ -19,9 +19,9 @@ class Break(Instruccion):
             codigoSalida+=retornoexpresion.codigo
             temp=s.obtenerTemporal()
             codigoSalida+=f"/* BREAK */\n"
-            codigoSalida+=f"{temp} = SP;\n"
-            codigoSalida+=f"Stack[(int){temp}] = {retornoexpresion.temporal};\n"
+            codigoSalida+=f"{s.temporalLoop}= {retornoexpresion.temporal};\n"
             codigoSalida+="goto REEMPLAZOBREAK;\n"
+            s.tipoTemporal=retornoexpresion.tipo
             return codigoSalida
         else:
             codigoSalida+=f"/* BREAK */\n"

@@ -1,3 +1,4 @@
+from src.Abstract.RetornoType import TipoDato
 from src.Symbol.Error import Error
 
 
@@ -19,6 +20,8 @@ class Singleton:
         self.main = ""
         self.funciones=""
         self.errores = []
+        self.tipoTemporal=TipoDato.ERROR
+        self.temporalLoop=""
         if Singleton.__instance != None:
             raise Exception("This class is a singleton!")
         else:
