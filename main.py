@@ -45,10 +45,11 @@ def ejecutar():
         principal=EntornoPadre.obtenerFuncion("main")
         for instruccion in principal.bloque:
             try:
-                s.agregarInstruccion(instruccion.Ejecutar(EntornoPadre))
+                pass
+                #s.agregarInstruccion(instruccion.Ejecutar(EntornoPadre))
             except:
                 print("error.........................")
-            #s.agregarInstruccion(instruccion.Ejecutar(EntornoPadre))
+            s.agregarInstruccion(instruccion.Ejecutar(EntornoPadre))
     else:
         s.addError(Error(f"No existe funcion main()",0,0))
 

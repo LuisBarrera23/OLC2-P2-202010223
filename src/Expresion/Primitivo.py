@@ -8,6 +8,7 @@ class Primitivo(Expresion):
     def __init__(self,valor,tipo):
         self.valor=valor
         self.tipo=tipo
+        self.esFormato=False
         
         self.etiquetaVerdadera = ""
         self.etiquetaFalsa = ""
@@ -23,18 +24,43 @@ class Primitivo(Expresion):
             retorno.iniciarRetorno(codigoSalida,"",temp1,self.tipo)
             return retorno
         elif(self.tipo==TipoDato.STR):
-            temp1=s.obtenerTemporal()
-            codigoSalida+=f"{temp1} = HP;\n"
+            if self.esFormato:
+                temp1=s.obtenerTemporal()
+                codigoSalida+=f"{temp1} = HP;\n"
+                estado=1
+                for c in self.valor:
+                    codigo=ord(c)
+                    if estado==1:
+                        if codigo==123:
+                            codigoSalida+=f"Heap[HP] = {codigo};\n"
+                            codigoSalida+=f"HP = HP + 1;\n"
+                            estado=2
+                        else:
+                            codigoSalida+=f"Heap[HP] = {codigo};\n"
+                            codigoSalida+=f"HP = HP + 1;\n"
+                    elif estado==2:
+                        if codigo==125:
+                            codigoSalida+=f"Heap[HP] = {codigo};\n"
+                            codigoSalida+=f"HP = HP + 1;\n"
+                            estado=1
+                codigoSalida += f'Heap[HP] = 0;\n'
+                codigoSalida += f'HP = HP+1;\n'
+                retorno.iniciarRetorno(codigoSalida,"",temp1,TipoDato.STR)
+                return retorno
+            else:
+                temp1=s.obtenerTemporal()
+                codigoSalida+=f"{temp1} = HP;\n"
 
-            for c in self.valor:
-                codigo=ord(c)
-                codigoSalida+=f"Heap[HP] = {codigo};\n"
-                codigoSalida+=f"HP = HP + 1;\n"
+                for c in self.valor:
+                    codigo=ord(c)
+                    codigoSalida+=f"Heap[HP] = {codigo};\n"
+                    codigoSalida+=f"HP = HP + 1;\n"
 
-            codigoSalida += f'Heap[HP] = 0;\n'
-            codigoSalida += f'HP = HP+1;\n'
-            retorno.iniciarRetorno(codigoSalida,"",temp1,TipoDato.STR)
-            return retorno
+                codigoSalida += f'Heap[HP] = 0;\n'
+                codigoSalida += f'HP = HP+1;\n'
+                retorno.iniciarRetorno(codigoSalida,"",temp1,TipoDato.STR)
+                return retorno
+                
 
         elif(self.tipo==TipoDato.BOOL):
             temp1=s.obtenerTemporal()

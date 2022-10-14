@@ -37,6 +37,7 @@ class For(Instruccion):
 
             temp1=s.obtenerTemporal()
             temp2=s.obtenerTemporal()
+            temp3=s.obtenerTemporal()
             if E1.tipo!=TipoDato.I64 or E2.tipo!=TipoDato.I64:
                 raise Exception(s.addError(Error(f"El rango del for necesita ser de tipo I64",self.linea,self.columna)))
 
@@ -57,7 +58,8 @@ class For(Instruccion):
             variable:Simbolo=nuevoEntorno.obtenerSimbolo(self.variable)
             codigoSalida += f'{temp1} = SP + {variable.direccionRelativa}; \n'
             codigoSalida += f'{temp2} = Stack[(int) {temp1}]; \n'
-            codigoSalida += f'Stack[(int) {temp1}] = {temp2} + 1;\n'
+            codigoSalida += f'{temp3} = {temp2} + 1;\n'
+            codigoSalida += f'Stack[(int) {temp1}] = {temp3};\n'
             codigoSalida += f"  goto {etqCiclo};\n"
             codigoSalida+=f"{etqSalida}:\n"
             codigoSalida=codigoSalida.replace("REEMPLAZOBREAK",etqSalida)
