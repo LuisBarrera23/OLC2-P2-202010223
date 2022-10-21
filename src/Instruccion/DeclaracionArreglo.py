@@ -41,7 +41,7 @@ class DeclaracionArreglo(Instruccion):
         if self.dimensiones==None:
             #print("sin dimensiones especificadas")
             objetoArreglo:ArrayInstancia = expresionArreglo.valor
-            if entorno.existeSimbolo(self.idInstancia):
+            if entorno.existeSimboloEnEntornoActual(self.idInstancia):
                 raise Exception(s.addError(Error(f"Variable ya existente con el nombre {self.idInstancia}",self.linea,self.columna)))
 
             temp1=s.obtenerTemporal()
@@ -61,7 +61,7 @@ class DeclaracionArreglo(Instruccion):
             Dimensiones:Dimension=self.dimensiones
 
             objetoArreglo:ArrayInstancia = expresionArreglo.valor
-            if entorno.existeSimbolo(self.idInstancia):
+            if entorno.existeSimboloEnEntornoActual(self.idInstancia):
                 raise Exception(s.addError(Error(f"Variable ya existente con el nombre {self.idInstancia}",self.linea,self.columna)))
             if objetoArreglo.tipo!=Dimensiones.tipo:
                 raise Exception(s.addError(Error(f"Tipo de datos no coinciden",self.linea,self.columna)))

@@ -20,6 +20,7 @@ class RetornoType:
         self.etiquetaV = ""
         self.etiquetaF = ""
         self.RetornoPos=""
+        self.arreglo=False
 
     def iniciarRetorno(self,codigo, etiqueta, temporal, tipo):
         self.codigo=codigo

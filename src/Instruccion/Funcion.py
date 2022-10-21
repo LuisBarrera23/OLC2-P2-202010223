@@ -30,9 +30,9 @@ class Funcion(Simbolo,Instruccion):
         etqReturn=s.obtenerEtiqueta()
         codigoSalida += f"void {self.identificador}(){{\n"
         for i in self.bloque:
-            #codigoSalida += i.Ejecutar(entorno)
+            codigoSalida += i.Ejecutar(entorno)
             try:
-                codigoSalida += i.Ejecutar(entorno)
+                #codigoSalida += i.Ejecutar(entorno)
                 pass
             except:
                 pass

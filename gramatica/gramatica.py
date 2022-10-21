@@ -650,12 +650,15 @@ def p_tostring(t):
 
 def p_as(t):
     """as : expresion AS I64 
-        | expresion AS F64 """
+        | expresion AS F64
+        | expresion AS USIZE """
     
     if(t[3]=="i64"):
         t[0]=Casteo(t[1],t.lexer.lineno,find_column(entrada,t.slice[2]),TipoDato.I64)
     elif(t[3]=="f64"):
         t[0]=Casteo(t[1],t.lexer.lineno,find_column(entrada,t.slice[2]),TipoDato.F64)
+    elif(t[3]=="usize"):
+        t[0]=Casteo(t[1],t.lexer.lineno,find_column(entrada,t.slice[2]),TipoDato.USIZE)
 
 
 def p_abs(t):

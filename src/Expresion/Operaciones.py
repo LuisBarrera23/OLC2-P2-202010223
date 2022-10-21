@@ -239,6 +239,14 @@ class Operacion(Expresion):
                     codigoSalida += f'{temp1} = {E1.temporal} * {E2.temporal};\n'
                     retorno.iniciarRetorno(codigoSalida,"",temp1,TipoDato.I64)
                     return retorno
+                elif E1.tipo==TipoDato.USIZE and E2.tipo==TipoDato.I64:
+                    codigoSalida += f'{temp1} = {E1.temporal} * {E2.temporal};\n'
+                    retorno.iniciarRetorno(codigoSalida,"",temp1,TipoDato.I64)
+                    return retorno
+                elif E1.tipo==TipoDato.I64 and E2.tipo==TipoDato.USIZE:
+                    codigoSalida += f'{temp1} = {E1.temporal} * {E2.temporal};\n'
+                    retorno.iniciarRetorno(codigoSalida,"",temp1,TipoDato.I64)
+                    return retorno
                 else:
                     raise Exception(s.addError(Error("Tipo de multiplicacion no valida",self.linea,self.columna)))
 

@@ -15,11 +15,14 @@ class AccesoArreglo(Expresion):
         self.listaExpresiones = listaExpresiones
         self.linea=linea
         self.columna=columna
+        self.asignacion=False
+        self.len=False
+        self.devuelve_arreglo=False
 
     def obtener3D(self, entorno) -> RetornoType:
         s=Singleton.getInstance()
         arreglo:Simbolo = entorno.obtenerSimbolo(self.idArreglo)
-        if entorno.existeSimboloEnEntornoActual(self.idArreglo) is not True:
+        if entorno.existeSimbolo(self.idArreglo) is not True:
             raise Exception(s.addError(Error(f"Arreglo {self.idArreglo} no existe",self.linea,self.columna)))
 
         arreglo:Simbolo = entorno.obtenerSimbolo(self.idArreglo)
@@ -39,16 +42,20 @@ class AccesoArreglo(Expresion):
         for i in indices:
             codigoSalida+=i.codigo
 
-        valor=self.Acceso(indices,temp2,etqSalida,entorno)
+        valor=self.Acceso(indices,temp2,etqSalida,entorno,arreglo.dimensiones)
         codigoSalida += valor.codigo
         codigoSalida+= f"{etqSalida}:\n"
+        
 
+        
         retorno=RetornoType()
+        if self.devuelve_arreglo:
+            retorno.arreglo=True
         retorno.iniciarRetorno(codigoSalida,"",valor.temporal,arreglo.tipo)
         return retorno
 
 
-    def Acceso(self,dimensiones,temporal,etqSalida,entorno):
+    def Acceso(self,dimensiones,temporal,etqSalida,entorno,dimOriginales):
         s=Singleton.getInstance()
         actual:RetornoType=dimensiones.pop(0)
 
@@ -85,12 +92,21 @@ class AccesoArreglo(Expresion):
 
         retorno=RetornoType()
         if len(dimensiones)>0:
-            resultado=self.Acceso(dimensiones,temp4,etqSalida,entorno)
+            resultado=self.Acceso(dimensiones,temp4,etqSalida,entorno,dimOriginales)
             codigoSalida+=resultado.codigo
             retorno.iniciarRetorno(codigoSalida,"",resultado.temporal,None)
         else:
-            
-            retorno.iniciarRetorno(codigoSalida,"",temp4,None)
+            if self.asignacion:
+                retorno.iniciarRetorno(codigoSalida,"",temp3,None)
+            elif self.len:
+                retorno.iniciarRetorno(codigoSalida,"",temp4,None)
+            else:
+                if (len(self.listaExpresiones)!= len(dimOriginales)):
+                    print("el acceso devuelve un arreglo")
+                    self.devuelve_arreglo=True
+                    retorno.iniciarRetorno(codigoSalida,"",temp4,None)
+                    return retorno
+                retorno.iniciarRetorno(codigoSalida,"",temp4,None)
 
         return retorno
 
@@ -100,7 +116,7 @@ class AccesoArreglo(Expresion):
         for e in self.listaExpresiones:
             exp=e.obtener3D(entorno)
             dimensionesEjecutadas.append(exp)
-            if exp.tipo!=TipoDato.I64:
+            if exp.tipo!=TipoDato.I64 and exp.tipo!=TipoDato.USIZE:
                 raise Exception(s.addError(Error(f"Para acceso se necesitan expresiones tipo I64 o USIZE",self.linea,self.columna)))
         return dimensionesEjecutadas
 

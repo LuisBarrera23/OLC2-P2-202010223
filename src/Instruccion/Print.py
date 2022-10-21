@@ -80,6 +80,11 @@ class Print(Instruccion):
     def imprimir(self,expresion,entorno):
         codigoSalida=""
         exp:RetornoType=expresion.obtener3D(entorno)
+        if exp.arreglo:
+            print("arreglo detectado")
+            codigoSalida += "/* IMPRIMIENDO UN ARREGLO */\n"
+            codigoSalida += self.imprimirArregloHeap(entorno,exp)
+            return codigoSalida
         s=Singleton.getInstance()
 
         if exp.tipo == TipoDato.I64:
@@ -215,6 +220,41 @@ class Print(Instruccion):
                     codigoSalida += f"printf(\"%c\",(char)44);\n"
             codigoSalida += f"printf(\"%c\",(char)93);\n"
 
+        return codigoSalida
+
+
+    def imprimirArregloHeap(self,entorno,expresion):
+        s=Singleton.getInstance()
+        etqCiclo=s.obtenerEtiqueta()
+        etqVerdadera=s.obtenerEtiqueta()
+        etqFalsa=s.obtenerEtiqueta()
+        temp1=s.obtenerTemporal()
+        temp2=s.obtenerTemporal()
+        temp3=s.obtenerTemporal()
+        temp4=s.obtenerTemporal()
+
+        
+        codigoSalida="/* IMPRIMIR ARREGLO POR DIRECCION DEL HEAP */\n"
+        codigoSalida+=expresion.codigo
+        codigoSalida +=f"printf(\"%c\",(char)91);\n"
+        codigoSalida+=f"{temp1} = Heap[(int){expresion.temporal}];\n" #valor del len
+        codigoSalida+=f"{temp2} = 1;\n"#iterador
+        codigoSalida+=f"{etqCiclo}:\n"
+        codigoSalida +=f"if({temp2} <= {temp1}) goto {etqVerdadera};\n"
+        codigoSalida +=f"goto {etqFalsa};\n"
+        codigoSalida+=f"{etqVerdadera}:\n"
+        codigoSalida+=f"{temp3} = {expresion.temporal} + {temp2};\n"
+        codigoSalida+=f"{temp4} = Heap[(int){temp3}];\n"
+
+        codigoSalida += f'printf(\"%d\", (int){temp4}); \n'
+        
+
+        codigoSalida+=f"{temp2} = {temp2} + 1;\n"#iterador
+        codigoSalida +=f"if({temp2} > {temp1}) goto {etqCiclo};\n"
+        codigoSalida += f"printf(\"%c\",(char)44);\n"
+        codigoSalida +=f"goto {etqCiclo};\n"
+        codigoSalida+=f"{etqFalsa}:\n"
+        codigoSalida += f"printf(\"%c\",(char)93);\n"
         return codigoSalida
 
 

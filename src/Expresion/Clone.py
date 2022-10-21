@@ -16,14 +16,14 @@ class Clone(Expresion):
         self.linea=linea
         self.columna=columna
         
-    def obtenerValor(self, entorno) -> RetornoType:
+    def obtener3D(self, entorno) -> RetornoType:
         s=Singleton.getInstance()
-        retorno=RetornoType(valor=None,tipo=TipoDato.ERROR)
+        retorno=RetornoType()
 
         try:
-            E=self.expresion.obtenerValor(entorno)
+            retorno=self.expresion.obtener3D(entorno)
             #print(E.tipo)
-            return RetornoType(valor=E.valor,tipo=E.tipo)
+            return retorno
         except:
             print("error al clonar")
         return retorno

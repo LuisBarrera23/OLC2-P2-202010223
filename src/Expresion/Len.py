@@ -18,25 +18,34 @@ class Len(Expresion):
         self.linea=linea
         self.columna=columna
         
-    def obtenerValor(self, entorno) -> RetornoType:
+    def obtener3D(self, entorno) -> RetornoType:
         s=Singleton.getInstance()
-        retorno=RetornoType(valor=None,tipo=TipoDato.ERROR)
+        codigoSalida=""
+        retorno=RetornoType()
 
         if isinstance(self.expresion,AccesoSimbolo):
             if entorno.existeSimbolo(self.expresion.id)==False:
-                raise Exception(s.addError(Error(f"No existe arreglo con este ID",self.linea,self.columna)))
-            arreglo=entorno.obtenerSimbolo(self.expresion.id)
-            print(arreglo)
+                raise Exception(s.addError(Error(f"No existe variable con este ID",self.linea,self.columna)))
+            arreglo:Simbolo=entorno.obtenerSimbolo(self.expresion.id)
             if isinstance(arreglo,ArrayInstancia):
-                #print(arreglo.tipo)
-                return RetornoType(valor=len(arreglo.valores),tipo=TipoDato.I64)
-            if isinstance(arreglo,Simbolo):
-                return RetornoType(valor=len(arreglo.valor),tipo=TipoDato.I64)
+                temp1=s.obtenerTemporal()
+                temp2=s.obtenerTemporal()
+                temp3=s.obtenerTemporal()
+                codigoSalida+="/* OPERACION LEN */\n"
+                codigoSalida+=f"{temp1} = SP + {arreglo.direccionRelativa};\n"
+                codigoSalida+= f"{temp2} = Stack[(int){temp1}];\n"
+                codigoSalida+=f"{temp3} = Heap[(int){temp2}];\n"
+                retorno.iniciarRetorno(codigoSalida,"",temp3,TipoDato.I64)
+                return retorno
             else:
                 raise Exception(s.addError(Error(f"Esta expresion no puede ser operada con len()",self.linea,self.columna)))
         elif isinstance(self.expresion,AccesoArreglo):
-            #print(self.expresion)
-            E=self.expresion.obtenerValor(entorno)
-            #print(len(E.valor))
-            return RetornoType(valor=len(E.valor),tipo=TipoDato.I64)
-        return retorno
+            self.expresion.len=True
+            E=self.expresion.obtener3D(entorno)
+            temp1=s.obtenerTemporal()
+            codigoSalida+="/* OPERACION LEN */\n"
+            codigoSalida+= E.codigo
+            codigoSalida+=f"{temp1} = Heap[(int){E.temporal}];\n"
+            retorno.iniciarRetorno(codigoSalida,"",temp1,TipoDato.I64)
+            return retorno
+        return

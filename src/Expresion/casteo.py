@@ -30,4 +30,7 @@ class Casteo(Expresion):
                 elif(self.tipo==TipoDato.F64):
                     E1.tipo=TipoDato.F64
                     return E1
+                elif(self.tipo==TipoDato.USIZE):
+                    E1.tipo=TipoDato.USIZE
+                    return E1
         return E1
