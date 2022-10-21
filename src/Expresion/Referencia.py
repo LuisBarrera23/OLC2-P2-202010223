@@ -2,9 +2,11 @@
 from src.Abstract.Expresion import Expresion
 from src.Abstract.RetornoType import RetornoType,TipoDato
 from src.Symbol.ArrayInstancia import ArrayInstancia
+from src.Symbol.Symbol import Simbolo
 
 from src.PatronSingleton.Singleton import Singleton
 from src.Symbol.Error import Error
+import copy
 
 class Referencia(Expresion):
     def __init__(self, idArreglo, linea, columna):
@@ -12,14 +14,19 @@ class Referencia(Expresion):
         self.linea=linea
         self.columna=columna
 
-    def obtenerValor(self, entorno) -> RetornoType:
+    def obtener3D(self, entorno) -> RetornoType:
         s=Singleton.getInstance()
         if entorno.existeSimbolo(self.idArreglo) is not True:
             raise Exception(s.addError(Error(f"Arreglo {self.id} no existe",self.linea,self.columna)))
 
-        arreglo = entorno.obtenerSimbolo(self.idArreglo)
-        # print(arreglo)
-        # if isinstance(arreglo, ArrayInstancia) is not True:
-        #     raise Exception(s.addError(Error(f"No es referencia de un arreglo",self.linea,self.columna)))
-
-        return RetornoType(valor = self.idArreglo, tipo=arreglo.tipo)
+        arreglo:Simbolo = entorno.obtenerSimbolo(self.idArreglo)
+        c=copy.copy(arreglo)
+        temp=s.obtenerTemporal()
+        temp2=s.obtenerTemporal()
+        codigoSalida=""
+        codigoSalida+=f"{temp} = SP + {arreglo.direccionRelativa};\n"
+        codigoSalida+=f"{temp2} = Stack[(int){temp}];\n"
+        
+        retorno=RetornoType()
+        retorno.iniciarRetornoArray(codigoSalida,temp2,TipoDato.ARREGLO,c)
+        return retorno

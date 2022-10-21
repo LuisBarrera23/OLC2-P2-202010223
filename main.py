@@ -45,8 +45,8 @@ def ejecutar():
         principal=EntornoPadre.obtenerFuncion("main")
         for instruccion in principal.bloque:
             try:
-                pass
                 #s.agregarInstruccion(instruccion.Ejecutar(EntornoPadre))
+                pass
             except:
                 print("error.........................")
             s.agregarInstruccion(instruccion.Ejecutar(EntornoPadre))

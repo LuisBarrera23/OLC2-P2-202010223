@@ -1,10 +1,11 @@
 from src.Abstract.Instruccion import Instruccion
-from src.Abstract.RetornoType import TipoDato
+from src.Abstract.RetornoType import RetornoType, TipoDato
 
 from src.Symbol.ArrayInstancia import ArrayInstancia
 
 from src.Symbol.Error import Error
 from src.PatronSingleton.Singleton import Singleton
+from src.Expresion.dimensionA import Dimension
 
 
 class DeclaracionArreglo(Instruccion):
@@ -17,43 +18,64 @@ class DeclaracionArreglo(Instruccion):
         self.columna=columna
         self.mutable=mutable
 
+        self.expresionCompilada=None
+        self.puntero_entornoN=""
+        self.ejecuta_en_funcion=False
+
     def Ejecutar(self, entorno):
+        codigoSalida=""
         s=Singleton.getInstance()
         
-        expresionArreglo = self.expresion.obtenerValor(entorno)
+        expresionArreglo:RetornoType() = None
+        if self.expresion is not None:
+            expresionArreglo:RetornoType=self.expresion.obtener3D(entorno)
+        elif self.expresionCompilada is not None:
+            expresionArreglo=self.expresionCompilada
+
+        punteroEntorno="SP"
+        if self.ejecuta_en_funcion:
+            punteroEntorno=self.puntero_entornoN
+
         if expresionArreglo.tipo != TipoDato.ARREGLO:
             raise Exception(s.addError(Error(f"La expresion necesita ser un arreglo",self.linea,self.columna)))
         if self.dimensiones==None:
             #print("sin dimensiones especificadas")
-            objetoArreglo = expresionArreglo.valor
-
-
+            objetoArreglo:ArrayInstancia = expresionArreglo.valor
             if entorno.existeSimbolo(self.idInstancia):
                 raise Exception(s.addError(Error(f"Variable ya existente con el nombre {self.idInstancia}",self.linea,self.columna)))
 
+            temp1=s.obtenerTemporal()
+            codigoSalida+="/* DECLARACION ARREGLO */\n"
+            codigoSalida += expresionArreglo.codigo
+            codigoSalida += f"{temp1} = {punteroEntorno} + {entorno.tamaño};\n"
+            codigoSalida += f"Stack[(int){temp1}] = {expresionArreglo.temporal};\n"
+
+
             objetoArreglo.identificador = self.idInstancia
             objetoArreglo.editable=self.mutable
-            #print(objetoArreglo.valores)
-            #print(objetoArreglo.dimensiones)
-            #print(str(objetoArreglo.tipo))
-            #print(str(objetoArreglo.editable))
+            objetoArreglo.direccionRelativa=entorno.tamaño
             entorno.agregarSimbolo(objetoArreglo)
+            return codigoSalida
         else:
             #print("con dimensiones especificadas")
-            D=self.dimensiones.obtenerValor(entorno)
-            objetoArreglo = expresionArreglo.valor
-            if objetoArreglo.tipo!=D.tipo:
-                raise Exception(s.addError(Error(f"Tipo de datos no coinciden",self.linea,self.columna)))
+            Dimensiones:Dimension=self.dimensiones
+
+            objetoArreglo:ArrayInstancia = expresionArreglo.valor
             if entorno.existeSimbolo(self.idInstancia):
                 raise Exception(s.addError(Error(f"Variable ya existente con el nombre {self.idInstancia}",self.linea,self.columna)))
+            if objetoArreglo.tipo!=Dimensiones.tipo:
+                raise Exception(s.addError(Error(f"Tipo de datos no coinciden",self.linea,self.columna)))
+            if len(Dimensiones.dimensiones)!=len(objetoArreglo.dimensiones):
+                raise Exception(s.addError(Error(f"Las dimensiones no son iguales con la expresion",self.linea,self.columna)))
+            temp1=s.obtenerTemporal()
+            codigoSalida+="/* DECLARACION ARREGLO */\n"
+            codigoSalida += expresionArreglo.codigo
+            codigoSalida += f"{temp1} = SP + {entorno.tamaño};\n"
+            codigoSalida += f"Stack[(int){temp1}] = {expresionArreglo.temporal};\n"
+
 
             objetoArreglo.identificador = self.idInstancia
             objetoArreglo.editable=self.mutable
-            #print(objetoArreglo.valores)
-            #print(objetoArreglo.dimensiones)
-            if D.valor!=objetoArreglo.dimensiones:
-                raise Exception(s.addError(Error(f"Las dimensiones no son iguales con la expresion",self.linea,self.columna)))
-            #print(str(objetoArreglo.tipo))
-            #print(str(objetoArreglo.editable))
+            objetoArreglo.direccionRelativa=entorno.tamaño
             entorno.agregarSimbolo(objetoArreglo)
-            
+            return codigoSalida

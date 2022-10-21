@@ -13,52 +13,61 @@ class ArrayContenido(Expresion):
         self.linea=linea
         self.columna=columna
 
-    def obtenerValor(self, entorno) -> RetornoType:
-        tipo = TipoDato.ERROR
-        expresionesCompiladas = []
+    def obtener3D(self, entorno) -> RetornoType:
+        codigoSalida=""
+        dimensiones = []
         s=Singleton.getInstance()
+        temporalPosicion=s.obtenerTemporal()
+        temp=s.obtenerTemporal()
 
-        # COMPILAR EXPRESIONES, OBTENER TAMAÑO DE CADA DIMENSION Y VALIDAR CONGRUENCIA DE TIPOS
-        for i in range(0, len(self.expresiones)):
-            expresion = self.expresiones[i]
-            valorExpresion = expresion.obtenerValor(entorno)
-
-            if i == 0:
-                tipo = valorExpresion.tipo
-                expresionesCompiladas.append(valorExpresion)
-            else:
-                if tipo != valorExpresion.tipo:
-                    raise Exception(s.addError(Error(f"Los elementos del arreglo no son del mismo tipo",self.linea,self.columna)))
-                else:
-                    expresionesCompiladas.append(valorExpresion)
-
+        codigoSalida+=f"{temporalPosicion} = HP;//posicion del arreglo en el heap\n"
         
-        # ahora creamos la data
-        
-        listaDimensiones  = []
-        valores = []
-        listaDimensiones.append(len(expresionesCompiladas)) # TAMAÑO DE LA DIMENSION 1
-        tipoFinal = TipoDato.ERROR
+        expresionesEjecutadas=self.ejecutarExpresiones(entorno)
 
-        for i in range(0, len(expresionesCompiladas)):
-            expresionCompilada = expresionesCompiladas[i]
+        dimensiones.append(len(expresionesEjecutadas))
+        codigoSalida+=f"HP = HP + {len(expresionesEjecutadas)+1};\n"
+        codigoSalida+=f"Heap[(int){temporalPosicion}] = {len(expresionesEjecutadas)};//largo del arreglo\n"
+        iterador=1
 
-            if expresionCompilada.tipo != TipoDato.ARREGLO:
-                tipoFinal = expresionCompilada.tipo
-                valores.append(expresionCompilada.valor)
-                continue
-
+        for e in expresionesEjecutadas:
+            if e.tipo==TipoDato.ARREGLO:
+                codigoSalida += "/* referencia a un sub-arreglo */\n"
+                codigoSalida += e.codigo
+                codigoSalida += f"{temp} = {temporalPosicion} + {iterador};\n"
+                codigoSalida += f"Heap[(int){temp}] = {e.temporal};\n"
+                if iterador==1:
+                    dimensiones.extend(e.valor.dimensiones)
             else:
-                instanciaArray = expresionCompilada.valor
-                if i == 0:
-                    tipoFinal = instanciaArray.tipo
-                    listaDimensiones.extend(instanciaArray.dimensiones)
+                codigoSalida += "/* almacenando valor cualquiera */\n"
+                codigoSalida += e.codigo
+                codigoSalida += f"{temp} = {temporalPosicion} + {iterador};\n"
+                codigoSalida += f"Heap[(int){temp}] = {e.temporal};\n"
+            iterador+=1
+        
+        nuevaInstancia=ArrayInstancia(self.tipo,dimensiones,[])
+        retorno=RetornoType()
+        retorno.iniciarRetornoArray(codigoSalida,temporalPosicion,TipoDato.ARREGLO,nuevaInstancia)
+        return retorno
+
+    def ejecutarExpresiones(self,entorno):
+        s=Singleton.getInstance()
+        expresiones=[]
+        iterador=0
+        for e in self.expresiones:
+            RetornoResultado=e.obtener3D(entorno)
+            if iterador==0:
+                if isinstance(e,ArrayContenido):
+                    self.tipo=RetornoResultado.valor.tipo
                 else:
-                    if instanciaArray.tipo != tipoFinal: 
-                        raise Exception(s.addError(Error(f"Los elementos del arreglo no son del mismo tipo",self.linea,self.columna)))
+                    self.tipo=RetornoResultado.tipo
+            else:
+                if isinstance(e,ArrayContenido):
+                    if self.tipo!=RetornoResultado.valor.tipo:
+                        raise Exception(s.addError(Error(f"Tipo de datos no coinciden en el arreglo",self.linea,self.columna)))
+                else:
+                    if self.tipo!=RetornoResultado.tipo:
+                        raise Exception(s.addError(Error(f"Tipo de datos no coinciden en el arreglo",self.linea,self.columna)))
 
-                valores.insert(i, instanciaArray.valores)
-
-
-        instanciaArrayRetorno = ArrayInstancia(tipoFinal, listaDimensiones, valores)
-        return RetornoType(valor=instanciaArrayRetorno,tipo=TipoDato.ARREGLO)
+            iterador+=1
+            expresiones.append(RetornoResultado)
+        return expresiones

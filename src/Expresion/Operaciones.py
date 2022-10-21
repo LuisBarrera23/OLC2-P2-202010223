@@ -34,6 +34,7 @@ class Operacion(Expresion):
         self.tipo2:TipoDato=TipoDato.ERROR
         self.etiquetaVerdadera=""
         self.etiquetaFalsa=""
+        self.funcionDoble=False
         
 
     def obtener3D(self, entorno) -> RetornoType:
@@ -97,33 +98,67 @@ class Operacion(Expresion):
             codigoSalida=""
             
             if self.tipo==TIPO_OPERACION.SUMA:
-                E1:RetornoType=self.izquierda.obtener3D(entorno)
-                E2:RetornoType=self.derecha.obtener3D(entorno)
                 codigoSalida+="/* SUMA */\n"
-                if isinstance(E1,Llamada):
+                if isinstance(self.izquierda,Llamada) and isinstance(self.derecha,Llamada):
+                    self.funcionDoble=not self.funcionDoble
+                    E1:RetornoType=self.izquierda.obtener3D(entorno)
+                    entorno.tamaño+=1
+                    E2:RetornoType=self.derecha.obtener3D(entorno)
+                    codigoSalida += E1.codigo +"\n"
+                    codigoSalida += E2.codigo +"\n"
+                elif isinstance(E1,Llamada):
+                    E1:RetornoType=self.izquierda.obtener3D(entorno)
+                    E2:RetornoType=self.derecha.obtener3D(entorno)
                     codigoSalida += E1.codigo +"\n"
                     codigoSalida += E2.codigo +"\n"
                 else:
+                    E1:RetornoType=self.izquierda.obtener3D(entorno)
+                    E2:RetornoType=self.derecha.obtener3D(entorno)
                     codigoSalida += E2.codigo +"\n"
                     codigoSalida += E1.codigo +"\n"
                 temp1=s.obtenerTemporal()
                 if E1.tipo==TipoDato.F64 and E2.tipo==TipoDato.F64:
+                    if self.funcionDoble:
+                        tempReturn=s.obtenerTemporal()
+                        codigoSalida+=f"{tempReturn} = {E2.RetornoPos} - 1;\n"
+                        codigoSalida+=f"{E1.temporal} = Stack[(int){tempReturn}];\n"
+                        entorno.tamaño=entorno.tamaño-1
                     codigoSalida += f'{temp1} = {E1.temporal} + {E2.temporal};\n'
                     retorno.iniciarRetorno(codigoSalida,"",temp1,TipoDato.F64)
                     return retorno
                 elif E1.tipo==TipoDato.I64 and E2.tipo==TipoDato.I64:
+                    if self.funcionDoble:
+                        tempReturn=s.obtenerTemporal()
+                        codigoSalida+=f"{tempReturn} = {E2.RetornoPos} - 1;\n"
+                        codigoSalida+=f"{E1.temporal} = Stack[(int){tempReturn}];\n"
+                        entorno.tamaño=entorno.tamaño-1
                     codigoSalida += f'{temp1} = (int){E1.temporal} + (int){E2.temporal};\n'
                     retorno.iniciarRetorno(codigoSalida,"",temp1,TipoDato.I64)
                     return retorno
                 elif E1.tipo==TipoDato.I64 and E2.tipo==TipoDato.USIZE:
+                    if self.funcionDoble:
+                        tempReturn=s.obtenerTemporal()
+                        codigoSalida+=f"{tempReturn} = {E2.RetornoPos} - 1;\n"
+                        codigoSalida+=f"{E1.temporal} = Stack[(int){tempReturn}];\n"
+                        entorno.tamaño=entorno.tamaño-1
                     codigoSalida += f'{temp1} = (int){E1.temporal} + (int){E2.temporal};\n'
                     retorno.iniciarRetorno(codigoSalida,"",temp1,TipoDato.USIZE)
                     return retorno
                 elif E1.tipo==TipoDato.USIZE and E2.tipo==TipoDato.I64:
+                    if self.funcionDoble:
+                        tempReturn=s.obtenerTemporal()
+                        codigoSalida+=f"{tempReturn} = {E2.RetornoPos} - 1;\n"
+                        codigoSalida+=f"{E1.temporal} = Stack[(int){tempReturn}];\n"
+                        entorno.tamaño=entorno.tamaño-1
                     codigoSalida += f'{temp1} = (int){E1.temporal} + (int){E2.temporal};\n'
                     retorno.iniciarRetorno(codigoSalida,"",temp1,TipoDato.USIZE)
                     return retorno
                 elif E1.tipo==TipoDato.USIZE and E2.tipo==TipoDato.USIZE:
+                    if self.funcionDoble:
+                        tempReturn=s.obtenerTemporal()
+                        codigoSalida+=f"{tempReturn} = {E2.RetornoPos} - 1;\n"
+                        codigoSalida+=f"{E1.temporal} = Stack[(int){tempReturn}];\n"
+                        entorno.tamaño=entorno.tamaño-1
                     codigoSalida += f'{temp1} = (int){E1.temporal} + (int){E2.temporal};\n'
                     retorno.iniciarRetorno(codigoSalida,"",temp1,TipoDato.USIZE)
                     return retorno

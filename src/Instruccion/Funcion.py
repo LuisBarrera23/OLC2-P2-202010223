@@ -1,3 +1,4 @@
+from src.Instruccion.DeclaracionArreglo import DeclaracionArreglo
 from src.Abstract.Instruccion import Instruccion
 from src.Abstract.Expresion import Expresion
 from src.Symbol.Symbol import Simbolo
@@ -8,6 +9,7 @@ from src.Symbol.Error import Error
 from src.Instruccion.Return import Return
 from src.Instruccion.Declaracion import Declaracion
 from src.Instruccion.Llamada import Llamada
+from src.Expresion.Referencia import Referencia
 
 class Funcion(Simbolo,Instruccion):
     def __init__(self, identificador,parametros,bloque,tipo,linea,columna):
@@ -28,8 +30,10 @@ class Funcion(Simbolo,Instruccion):
         etqReturn=s.obtenerEtiqueta()
         codigoSalida += f"void {self.identificador}(){{\n"
         for i in self.bloque:
+            #codigoSalida += i.Ejecutar(entorno)
             try:
                 codigoSalida += i.Ejecutar(entorno)
+                pass
             except:
                 pass
         codigoSalida=codigoSalida.replace("REEMPLAZORETURN",etqReturn)
@@ -49,6 +53,11 @@ class Funcion(Simbolo,Instruccion):
             declaracion=self.parametros[i]
             expresion:Expresion=expresiones[i]
             if isinstance(declaracion,Declaracion):
+                declaracion.puntero_entornoN=nuevoPuntero
+                declaracion.ejecuta_en_funcion=True
+                declaracion.expresionCompilada=expresion.obtener3D(entornoQueLlamo)
+                codigoSalida1+=declaracion.Ejecutar(entornoFuncion)
+            elif isinstance(declaracion,DeclaracionArreglo):
                 declaracion.puntero_entornoN=nuevoPuntero
                 declaracion.ejecuta_en_funcion=True
                 declaracion.expresionCompilada=expresion.obtener3D(entornoQueLlamo)

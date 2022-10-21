@@ -41,16 +41,17 @@ class Llamada(Instruccion,Expresion):
         
         codigoSalida += f"{self.id}();\n"
         
-        temp2=s.obtenerTemporal()
-        codigoSalida += f"{temp2} = Stack[(int)SP];\n"
 
-        
         codigoSalida += f"SP = SP - {entorno.tamaño};\n"
-
+        temp1=s.obtenerTemporal()
+        temp2=s.obtenerTemporal()
+        codigoSalida += f"{temp1} = SP + {entorno.tamaño};\n"
+        codigoSalida += f"{temp2} = Stack[(int){temp1}];\n"
         
 
         retorno=RetornoType()
         retorno.iniciarRetorno(codigoSalida,"",temp2,funcion.tipo)
+        retorno.RetornoPos=temp1
         return retorno
 
     def generarFuncion(self,entorno,funcion):

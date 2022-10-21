@@ -5,8 +5,11 @@ from src.Abstract.RetornoType import RetornoType, TipoDato
 from src.Abstract.Instruccion import Instruccion
 from src.PatronSingleton.Singleton import Singleton
 from src.Symbol.Error import Error
+from src.Symbol.Symbol import Simbolo
+from src.Expresion.Primitivo import Primitivo
 
 from src.Symbol.ArrayInstancia import ArrayInstancia
+from src.Expresion.AccesoArreglo import AccesoArreglo
 
 class Print(Instruccion):
 
@@ -141,4 +144,77 @@ class Print(Instruccion):
             codigoSalida += exp.codigo
             codigoSalida += f'printf(\"%c\", (char){exp.temporal}); \n'
             return codigoSalida
+
+        elif exp.tipo == TipoDato.ARREGLO:
+            codigoSalida += "/* IMPRIMIENDO UN ARREGLO */\n"
+            codigoSalida += self.imprimirArreglo(entorno,expresion)
+            return codigoSalida
+
+
+    def imprimirArreglo(self,entorno,nombre):
+        codigoSalida=""
+        arreglo:Simbolo=entorno.obtenerSimbolo(nombre.id)
+        if len(arreglo.dimensiones)==1:
+            codigoSalida +=f"printf(\"%c\",(char)91);\n"
+            for i in range(arreglo.dimensiones[0]):
+                indice=[]
+                x=Primitivo(i,TipoDato.I64)
+                indice.append(x)
+                acceso=AccesoArreglo(arreglo.identificador,indice,self.linea,self.columna)
+                codigoSalida+=self.imprimir(acceso,entorno)
+                if i!=arreglo.dimensiones[0]-1:
+                    codigoSalida += f"printf(\"%c\",(char)44);\n"
+            codigoSalida += f"printf(\"%c\",(char)93);\n"
+        elif len(arreglo.dimensiones)==2:
+            codigoSalida +=f"printf(\"%c\",(char)91);\n"
+            for i in range(arreglo.dimensiones[0]):
+                codigoSalida +=f"printf(\"%c\",(char)91);\n"
+                for j in range(arreglo.dimensiones[1]):
+                    indice=[]
+                    x=Primitivo(i,TipoDato.I64)
+                    y=Primitivo(j,TipoDato.I64)
+                    indice.append(x)
+                    indice.append(y)
+                    acceso=AccesoArreglo(arreglo.identificador,indice,self.linea,self.columna)
+                    codigoSalida+=self.imprimir(acceso,entorno)
+                    if j!=arreglo.dimensiones[1]-1:
+                        codigoSalida += f"printf(\"%c\",(char)44);\n"
+                codigoSalida += f"printf(\"%c\",(char)93);\n"
+                if i!=arreglo.dimensiones[0]-1:
+                    codigoSalida += f"printf(\"%c\",(char)44);\n"
+            codigoSalida += f"printf(\"%c\",(char)93);\n"
+
+        elif len(arreglo.dimensiones)==3:
+            # for i in range(arreglo.dimensiones[0]):
+            #     for j in range(arreglo.dimensiones[1]):
+            #         for k in range(arreglo.dimensiones[2]):
+            #             print(i,j,k)
+            
+            codigoSalida +=f"printf(\"%c\",(char)91);\n"
+            for i in range(arreglo.dimensiones[0]):
+                codigoSalida +=f"printf(\"%c\",(char)91);\n"
+                for j in range(arreglo.dimensiones[1]):
+                    codigoSalida +=f"printf(\"%c\",(char)91);\n"
+                    for k in range(arreglo.dimensiones[2]):
+                        indice=[]
+                        x=Primitivo(i,TipoDato.I64)
+                        y=Primitivo(j,TipoDato.I64)
+                        z=Primitivo(k,TipoDato.I64)
+                        indice.append(x)
+                        indice.append(y)
+                        indice.append(z)
+                        acceso=AccesoArreglo(arreglo.identificador,indice,self.linea,self.columna)
+                        codigoSalida+=self.imprimir(acceso,entorno)
+                        if k != arreglo.dimensiones[2]-1:
+                            codigoSalida += f"printf(\"%c\",(char)44);\n"
+                    codigoSalida += f"printf(\"%c\",(char)93);\n"
+                    if j!=arreglo.dimensiones[1]-1:
+                        codigoSalida += f"printf(\"%c\",(char)44);\n"
+                codigoSalida += f"printf(\"%c\",(char)93);\n"
+                if i!=arreglo.dimensiones[0]-1:
+                    codigoSalida += f"printf(\"%c\",(char)44);\n"
+            codigoSalida += f"printf(\"%c\",(char)93);\n"
+
+        return codigoSalida
+
 

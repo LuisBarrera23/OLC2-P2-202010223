@@ -23,9 +23,8 @@ class AccesoSimbolo(Expresion):
             E=entorno.obtenerSimbolo(self.id)
             retorno=RetornoType()
             if isinstance(E,ArrayInstancia):
-                #esto es por si encuentra que es un array aun se debe implementar C3D
-                #return RetornoType(valor=E,tipo=E.tipo)
-                pass
+                retorno.iniciarRetorno("","","",TipoDato.ARREGLO)
+                return retorno
             temp1=s.obtenerTemporal()
             temp2=s.obtenerTemporal()
             codigoSalida=""

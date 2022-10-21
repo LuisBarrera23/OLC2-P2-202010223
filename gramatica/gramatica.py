@@ -275,9 +275,9 @@ def p_parametro(t):
     if len(t)==4:
         t[0] = Declaracion(t[1],None,True,t.lexer.lineno,find_column(entrada,t.slice[2]),t[3])
     elif len(t)==6:
-        t[0]=Parametro(t[1],t[5],t.lexer.lineno,find_column(entrada,t.slice[2]),True)
+        t[0] = DeclaracionArreglo(t[1],None,t.lexer.lineno,find_column(entrada,t.slice[2]),None,True)
     elif len(t)==9:
-        t[0]=Parametro(t[1],t[7],t.lexer.lineno,find_column(entrada,t.slice[2]),True)
+        t[0] = Declaracion(t[1],None,True,t.lexer.lineno,find_column(entrada,t.slice[2]),t[3])
     
 
 def p_llamada(t):
@@ -618,6 +618,7 @@ def p_len(t):
 def p_referencia(t):
     """ referencia : Y MUT ID"""
     t[0]=Referencia(t[3],t.lexer.lineno,find_column(entrada,t.slice[1]))
+    #t[0] = AccesoSimbolo(t[3],t.lexer.lineno,find_column(entrada,t.slice[1]))
     
 def p_accesoarray(t):
     """ accesoarray : ID ubicaciones """
