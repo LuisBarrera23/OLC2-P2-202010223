@@ -6,6 +6,7 @@ from src.PatronSingleton.Singleton import Singleton
 from src.Symbol.Error import Error
 
 from src.Symbol.ArrayInstancia import ArrayInstancia
+from src.Symbol.VectorInstancia import VectorInstancia
 
 class AccesoSimbolo(Expresion):
 
@@ -24,6 +25,9 @@ class AccesoSimbolo(Expresion):
             retorno=RetornoType()
             if isinstance(E,ArrayInstancia):
                 retorno.iniciarRetorno("","","",TipoDato.ARREGLO)
+                return retorno
+            elif isinstance(E,VectorInstancia):
+                retorno.iniciarRetorno("","","",TipoDato.VECTOR)
                 return retorno
             temp1=s.obtenerTemporal()
             temp2=s.obtenerTemporal()

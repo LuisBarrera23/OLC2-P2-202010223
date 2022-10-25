@@ -1,54 +1,46 @@
 
-from src.Expresion.AccesoVector import AccesoVector
 from src.Abstract.Expresion import Expresion
 from src.Abstract.RetornoType import RetornoType,TipoDato
-from src.Symbol.ArrayInstancia import ArrayInstancia
 
 from src.PatronSingleton.Singleton import Singleton
 from src.Symbol.Error import Error
 
 from src.Symbol.Symbol import Simbolo
-from src.Symbol.ArrayInstancia import ArrayInstancia
 from src.Symbol.VectorInstancia import VectorInstancia
 
-class AccesoArreglo(Expresion):
+class AccesoVector(Expresion):
     def __init__(self, idArreglo, listaExpresiones, linea, columna):
         self.idArreglo = idArreglo
         self.listaExpresiones = listaExpresiones
         self.linea=linea
         self.columna=columna
+        
         self.asignacion=False
         self.len=False
         self.devuelve_arreglo=False
 
     def obtener3D(self, entorno) -> RetornoType:
         s=Singleton.getInstance()
-        arreglo:Simbolo = entorno.obtenerSimbolo(self.idArreglo)
-        if isinstance(arreglo,VectorInstancia):
-            accesoVector=AccesoVector(self.idArreglo,self.listaExpresiones,self.linea,self.columna)
-            retorno=accesoVector.obtener3D(entorno)
-            return retorno
+        vector:Simbolo = entorno.obtenerSimbolo(self.idArreglo)
         if entorno.existeSimbolo(self.idArreglo) is not True:
-            raise Exception(s.addError(Error(f"Arreglo {self.idArreglo} no existe",self.linea,self.columna)))
+            raise Exception(s.addError(Error(f"Vector {self.idArreglo} no existe",self.linea,self.columna)))
 
-        arreglo:Simbolo = entorno.obtenerSimbolo(self.idArreglo)
-        if isinstance(arreglo,ArrayInstancia) is False:
-            raise Exception(s.addError(Error(f"Arreglo {self.id} no existe",self.linea,self.columna)))
+        if isinstance(vector,VectorInstancia) is False:
+            raise Exception(s.addError(Error(f"Vector {self.id} no existe",self.linea,self.columna)))
 
         temp1=s.obtenerTemporal()
         temp2=s.obtenerTemporal()
         etqSalida=s.obtenerEtiqueta()
 
         codigoSalida=""
-        codigoSalida += "/* ACCESO A UN ARREGLO */\n"
-        codigoSalida += f"{temp1} = SP + {arreglo.direccionRelativa};\n"
-        codigoSalida += f"{temp2} = Stack[(int) {temp1}]; \n"
+        codigoSalida += "/* ACCESO A UN VECTOR */\n"
+        codigoSalida += f"{temp1} = SP + {vector.direccionRelativa};\n"
+        codigoSalida += f"{temp2} = Stack[(int){temp1}]; \n"
         
         indices=self.EjecutarDimensiones(entorno)
         for i in indices:
             codigoSalida+=i.codigo
-
-        valor=self.Acceso(indices,temp2,etqSalida,entorno,arreglo.dimensiones)
+        valor=self.Acceso(indices,temp2,etqSalida,entorno,vector.dimensiones)
         codigoSalida += valor.codigo
         codigoSalida+= f"{etqSalida}:\n"
         
@@ -56,8 +48,8 @@ class AccesoArreglo(Expresion):
         
         retorno=RetornoType()
         if self.devuelve_arreglo:
-            retorno.arreglo=True
-        retorno.iniciarRetorno(codigoSalida,"",valor.temporal,arreglo.tipo)
+            retorno.vector=True
+        retorno.iniciarRetorno(codigoSalida,"",valor.temporal,vector.tipo)
         return retorno
 
 
@@ -73,7 +65,7 @@ class AccesoArreglo(Expresion):
         etqCorrecto=s.obtenerEtiqueta()
 
         codigoSalida=""
-        codigoSalida += f"{temp1} = Heap[(int) {temporal}];//tamaño del arreglo\n "
+        codigoSalida += f"{temp1} = Heap[(int) {temporal}];//tamaño del vector\n "
         codigoSalida += f" if ({actual.temporal} < 0) goto {etqIncorrecto};\n"
         codigoSalida += f" if ({actual.temporal} >= {temp1}) goto {etqIncorrecto};\n"
         codigoSalida += f"goto {etqCorrecto};\n"
@@ -91,7 +83,7 @@ class AccesoArreglo(Expresion):
         codigoSalida +="printf(\"%c\\n\", 114); //r\n"
         codigoSalida +=f"goto {etqSalida};\n"   
         codigoSalida += f"{etqCorrecto}:\n"
-        codigoSalida += f"{temp2} = {temporal} + 1;\n"
+        codigoSalida += f"{temp2} = {temporal} + 2;\n"
         codigoSalida += f"{temp3} = {temp2} + {actual.temporal};\n"
         codigoSalida += f"{temp4} = Heap[(int){temp3}];\n"
 
@@ -108,7 +100,7 @@ class AccesoArreglo(Expresion):
                 retorno.iniciarRetorno(codigoSalida,"",temp4,None)
             else:
                 if (len(self.listaExpresiones)!= len(dimOriginales)):
-                    print("el acceso devuelve un arreglo")
+                    print("el acceso devuelve un vector")
                     self.devuelve_arreglo=True
                     retorno.iniciarRetorno(codigoSalida,"",temp4,None)
                     return retorno

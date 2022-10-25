@@ -49,10 +49,16 @@ class Simbolo:
         self.valores=valores
         self.editable=False
 
-    def Simbolo_vector(self,identificador,dimensiones,valor,capacidad,tipo,editable=False):
+    def Simbolo_vector(self,identificador,dimensiones,valoresInstancia,capacidad,tipo,editable=False):
         self.identificador=identificador
         self.dimensiones=dimensiones
-        self.valor=valor
+        self.valores=valoresInstancia
         self.editable=editable
         self.capacidad=capacidad
         self.tipo=tipo
+
+    def modificarDimension(self,nuevaDimension):
+        if len(self.dimensiones)==1:
+            self.dimensiones=nuevaDimension
+        elif len(self.dimensiones)==2:
+            self.dimensiones[0]=nuevaDimension[0]

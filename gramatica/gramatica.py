@@ -22,6 +22,7 @@ from src.Instruccion.DeclaracionArreglo import DeclaracionArreglo
 from src.Instruccion.AsignacionArreglo import AsignacionArreglo
 from src.Instruccion.DeclaracionVector import DeclaracionVector
 from src.Instruccion.Push import Push
+from src.Instruccion.Insert import Insert
 
 
 from src.Expresion.casteo import Casteo
@@ -33,9 +34,11 @@ from src.Expresion.dimensionA import Dimension
 from src.Expresion.AccesoArreglo import AccesoArreglo
 from src.Expresion.Referencia import Referencia
 from src.Expresion.Len import Len
+from src.Expresion.Capacity import Capacity
 from src.Expresion.Clone import Clone
 from src.Expresion.VectorContenido import VectorContenido
 from src.Expresion.Remove import Remove
+from src.Expresion.Contains import Contains
 
 from src.Symbol.Parametro import Parametro
 
@@ -73,13 +76,16 @@ reservadas = {
     'abs' : 'ABS',
     'sqrt' : 'SQRT',
     'len' : 'LEN',
+    'capacity' : 'CAPACITY',
     'clone' : 'CLONE',
     'vec' : 'VEC',
     'Vec' : 'VECM',
     'new' : 'NEW',
-    'with_capacity' : 'CAPACITY',
+    'with_capacity' : 'WCAPACITY',
     'push' : 'PUSH',
-    'remove' : 'REMOVE'
+    'insert' : 'INSERT',
+    'remove' : 'REMOVE',
+    'contains':'CONTAINS'
 }
 
 tokens = [
@@ -194,6 +200,9 @@ def t_COMENTARIO_SIMPLE(t):
     r'//.*\n'
     t.lexer.lineno += 1
 
+def t_COMENTARIO_MULTILINEA(t):
+    r'/\*(.|\n)*?\*/'
+    t.lexer.lineno += t.value.count('\n')
 
 t_ignore = " \t\r"
 
@@ -330,6 +339,7 @@ def p_instruccion(t):
                 | while
                 | continue PTCOMA
                 | for 
+                | insert PTCOMA
                 | asignacionA PTCOMA
                 | push PTCOMA"""
     t[0]=t[1]
@@ -395,16 +405,8 @@ def p_declaracion4(t):
 
     if len(t)==11:
         t[0]=t[0]=DeclaracionVector(t[3],t[10],t.lexer.lineno,find_column(entrada,t.slice[1]),None,True,t[7])
-        if t[10].tipodeclaracion==3:
-            t[0].nuevo=True
-        elif t[10].tipodeclaracion==4:
-            t[0].cap=True
     if len(t)==10:
         t[0]=t[0]=DeclaracionVector(t[2],t[9],t.lexer.lineno,find_column(entrada,t.slice[1]),None,False,t[6])
-        if t[9].tipodeclaracion==3:
-            t[0].nuevo=True
-        elif t[9].tipodeclaracion==4:
-            t[0].cap=True
 
 
 def p_dimensiones(t):
@@ -501,6 +503,10 @@ def p_push(t):
     """ push : ID PUNTO PUSH PIZQ expresion PDER"""
     t[0]=Push(t[1],t[5],t.lexer.lineno,find_column(entrada,t.slice[3]))
 
+def p_insert(t):
+    """ insert : ID PUNTO INSERT PIZQ expresion COMA expresion PDER """
+    t[0]=Insert(t[1],t[5],t[7],t.lexer.lineno,find_column(entrada,t.slice[2]))
+
 def p_expresion_aritmetica(t):
     """expresion : MENOS expresion %prec UMENOS
                 | expresion MAS expresion
@@ -577,6 +583,8 @@ def p_expresiones_variadas(t):
                 | accesoarray 
                 | referencia
                 | len
+                | capacity
+                | contains
                 | clone
                 | vector
                 | remove
@@ -586,6 +594,10 @@ def p_expresiones_variadas(t):
 def p_remove(t):
     """ remove : expresion PUNTO REMOVE PIZQ expresion PDER"""
     t[0]=Remove(t[1],t[5],t.lexer.lineno,find_column(entrada,t.slice[3]))
+
+def p_contains(t):
+    """ contains : expresion PUNTO CONTAINS PIZQ Y expresion PDER"""
+    t[0]=Contains(t[1],t[6],t.lexer.lineno,find_column(entrada,t.slice[3]))
 
 
 def p_vector1(t):
@@ -601,7 +613,7 @@ def p_vector3(t):
     t[0]=VectorContenido(3,None,t.lexer.lineno,find_column(entrada,t.slice[2]))
 
 def p_vector4(t):
-    """ vector : VECM DOBLEPT DOBLEPT CAPACITY PIZQ expresion PDER"""
+    """ vector : VECM DOBLEPT DOBLEPT WCAPACITY PIZQ expresion PDER"""
     t[0]=VectorContenido(4,t[6],t.lexer.lineno,find_column(entrada,t.slice[2]))
 
 
@@ -614,6 +626,9 @@ def p_len(t):
     """ len : expresion PUNTO LEN PIZQ PDER """
     t[0]=Len(t[1],t.lexer.lineno,find_column(entrada,t.slice[2]))
 
+def p_capacity(t):
+    """ capacity : expresion PUNTO CAPACITY PIZQ PDER """
+    t[0]=Capacity(t[1],t.lexer.lineno,find_column(entrada,t.slice[2]))
 
 def p_referencia(t):
     """ referencia : Y MUT ID"""

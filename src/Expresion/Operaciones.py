@@ -445,6 +445,9 @@ class Operacion(Expresion):
 #Operaciones logicas
 
             elif self.tipo==TIPO_OPERACION.OR:
+                if self.etiquetaFalsa=="" and self.etiquetaVerdadera=="":
+                    self.etiquetaFalsa=s.obtenerEtiqueta()
+                    self.etiquetaVerdadera=s.obtenerEtiqueta()
                 self.izquierda.etiquetaVerdadera=self.etiquetaVerdadera
                 self.izquierda.etiquetaFalsa=s.obtenerEtiqueta()
                 self.derecha.etiquetaVerdadera=self.etiquetaVerdadera
@@ -454,7 +457,22 @@ class Operacion(Expresion):
                 E2:RetornoType=self.derecha.obtener3D(entorno)
                 if E1.tipo!=TipoDato.BOOL or E2.tipo!=TipoDato.BOOL:
                     raise Exception(s.addError(Error("Tipo de OR no valido",self.linea,self.columna)))
-                    
+                if E1.etiquetaF=="":
+                    temp=s.obtenerTemporal()
+                    etq1=s.obtenerEtiqueta()
+                    etqSalida=s.obtenerEtiqueta()
+                    codigoSalida += E1.codigo
+                    codigoSalida += E2.codigo
+                    codigoSalida += f"{temp} = 0;\n"
+                    codigoSalida += f"if({E1.temporal}!=1) goto {etq1};\n"
+                    codigoSalida += f"{temp} = 1;\n"
+                    codigoSalida += f"goto {etqSalida};\n"
+                    codigoSalida += f"{etq1}:\n"
+                    codigoSalida += f"if({E2.temporal}!=1) goto {etqSalida};\n"
+                    codigoSalida += f"{temp} = 1;\n"
+                    codigoSalida += f"{etqSalida}:\n"
+                    retorno.iniciarRetorno(codigoSalida,"",temp,TipoDato.BOOL)
+                    return retorno
                 codigoSalida=""
                 codigoSalida += E1.codigo
                 codigoSalida += f"{E1.etiquetaF}:\n"
@@ -475,7 +493,19 @@ class Operacion(Expresion):
                 E2:RetornoType=self.derecha.obtener3D(entorno)
                 if E1.tipo!=TipoDato.BOOL or E2.tipo!=TipoDato.BOOL:
                     raise Exception(s.addError(Error("Tipo de AND no valido",self.linea,self.columna)))
-                    
+                if E1.etiquetaV=="":
+                    temp=s.obtenerTemporal()
+                    etq1=s.obtenerEtiqueta()
+                    etqSalida=s.obtenerEtiqueta()
+                    codigoSalida += E1.codigo
+                    codigoSalida += E2.codigo
+                    codigoSalida += f"{temp} = 0;\n"
+                    codigoSalida += f"if({E1.temporal}!=1) goto {etqSalida};\n"
+                    codigoSalida += f"if({E2.temporal}!=1) goto {etqSalida};\n"
+                    codigoSalida += f"{temp} = 1;\n"
+                    codigoSalida += f"{etqSalida}:\n"
+                    retorno.iniciarRetorno(codigoSalida,"",temp,TipoDato.BOOL)
+                    return retorno   
                 codigoSalida=""
                 codigoSalida += E1.codigo
                 codigoSalida += f"{E1.etiquetaV}:\n"
