@@ -286,7 +286,7 @@ def p_parametro(t):
     elif len(t)==6:
         t[0] = DeclaracionArreglo(t[1],None,t.lexer.lineno,find_column(entrada,t.slice[2]),None,True)
     elif len(t)==9:
-        t[0] = Declaracion(t[1],None,True,t.lexer.lineno,find_column(entrada,t.slice[2]),t[3])
+        t[0] = DeclaracionVector(t[1],None,t.lexer.lineno,find_column(entrada,t.slice[2]),None,True,t[7])
     
 
 def p_llamada(t):

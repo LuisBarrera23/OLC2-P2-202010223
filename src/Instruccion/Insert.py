@@ -44,6 +44,9 @@ class Insert(Instruccion):
         temp9=s.obtenerTemporal()
         temp10=s.obtenerTemporal()
         temp11=s.obtenerTemporal()
+        temp12=s.obtenerTemporal()
+        temp13=s.obtenerTemporal()
+
 
         codigoSalida="/* INSERT VECTOR */\n"
 
@@ -57,9 +60,11 @@ class Insert(Instruccion):
         #realizando copia del vector
         codigoSalida += f"{temp1} = SP + {vector.direccionRelativa};\n"
         codigoSalida += f"{temp2} = Stack[(int){temp1}]; \n"
-
+        
         codigoSalida+=f"{temporalPosicion} = HP;//nueva posicion del vector en el heap\n"
-        codigoSalida+=f"HP = HP + {vector.dimensiones[0]+3};//reservacion del espacio del nuevo vector\n"
+        codigoSalida += f"{temp12} = Heap[(int){temp2}];\n" 
+        codigoSalida += f"{temp13} = {temp12} + 3;\n" 
+        codigoSalida+=f"HP = HP + {temp13};//reservacion del espacio del nuevo vector\n"
         
         codigoSalida += f"{temp3} = Heap[(int){temp2}];\n" 
         codigoSalida += f"{temp3} = {temp3} + 1;\n" 
@@ -113,6 +118,13 @@ class Insert(Instruccion):
         codigoSalida += f"{temp11} = SP + {vector.direccionRelativa};\n"
         codigoSalida += f"Stack[(int){temp11}] = {temporalPosicion}; //nueva ubicacion del vector\n"
         vector.dimensiones[0]=vector.dimensiones[0]+1
+        
+        if vector.nombreAnterior!="":
+            temp1=s.obtenerTemporal()
+            anterior=entorno.obtenerSimbolo(vector.nombreAnterior)
+            anterior.dimensiones=vector.dimensiones
+            codigoSalida += f"{temp1} = {vector.punteroReferencia} + {anterior.direccionRelativa};\n"
+            codigoSalida += f"Stack[(int){temp1}] = {temporalPosicion}; //nueva ubicacion del vector\n"
 
         
         

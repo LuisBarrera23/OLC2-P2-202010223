@@ -1,4 +1,6 @@
+import imp
 from src.Instruccion.DeclaracionArreglo import DeclaracionArreglo
+from src.Instruccion.DeclaracionVector import DeclaracionVector
 from src.Abstract.Instruccion import Instruccion
 from src.Abstract.Expresion import Expresion
 from src.Symbol.Symbol import Simbolo
@@ -62,6 +64,12 @@ class Funcion(Simbolo,Instruccion):
                 declaracion.ejecuta_en_funcion=True
                 declaracion.expresionCompilada=expresion.obtener3D(entornoQueLlamo)
                 codigoSalida1+=declaracion.Ejecutar(entornoFuncion)
+            elif isinstance(declaracion,DeclaracionVector):
+                declaracion.puntero_entornoN=nuevoPuntero
+                declaracion.ejecuta_en_funcion=True
+                declaracion.expresionCompilada=expresion.obtener3D(entornoQueLlamo)
+                codigoSalida1+=declaracion.Ejecutar(entornoFuncion)
+            
 
         return codigoSalida1
 

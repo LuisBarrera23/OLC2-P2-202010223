@@ -23,7 +23,9 @@ class Simbolo:
         self.dimensiones=[]
         
         #EXTRA PARA VECTORES
-        self.capacidad=0
+        self.punteroReferencia=""
+        self.nombreAnterior=""
+        self.aux1=False
 
         
     def Simbolo_primitivo(self, id, valor,tipo,linea, columna,direccionRelativa, editable=False):

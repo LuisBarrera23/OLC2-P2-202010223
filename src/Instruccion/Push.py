@@ -25,36 +25,100 @@ class Push(Instruccion):
         
     def Ejecutar(self, entorno):
         s=Singleton.getInstance()
+        temporalPosicion=s.obtenerTemporal()
+        temporalLargo=s.obtenerTemporal()
+        etqCiclo=s.obtenerEtiqueta()
+        etqVerdadera=s.obtenerEtiqueta()
+        etqFalsa=s.obtenerEtiqueta()
         temp1=s.obtenerTemporal()
         temp2=s.obtenerTemporal()
+        temp3=s.obtenerTemporal()
+        temp4=s.obtenerTemporal()
+        temp5=s.obtenerTemporal()
+        temp6=s.obtenerTemporal()
+        temp7=s.obtenerTemporal()
+        temp8=s.obtenerTemporal()
+        temp9=s.obtenerTemporal()
+        temp10=s.obtenerTemporal()
+        temp11=s.obtenerTemporal()
+        temp12=s.obtenerTemporal()
+        temp13=s.obtenerTemporal()
+
         codigoSalida="/* PUSH VECTOR */\n"
 
         if entorno.existeSimbolo(self.id)==False:
             raise Exception(s.addError(Error(f"Vector no existe",self.linea,self.columna)))
         vector:Simbolo=entorno.obtenerSimbolo(self.id)
         if isinstance(vector,VectorInstancia) is False:
-            raise Exception(s.addError(Error(f"push es solo para vectores",self.linea,self.columna)))
+            raise Exception(s.addError(Error(f"insert es solo para vectores",self.linea,self.columna)))
         
         
         #realizando copia del vector
-        expresiones=[]
-        for i in range(vector.dimensiones[0]):
-            indice=[]
-            x=Primitivo(i,TipoDato.I64)
-            indice.append(x)
-            acceso=AccesoVector(vector.identificador,indice,self.linea,self.columna)
-            expresiones.append(acceso) 
-        expresiones.append(self.expresion2)
-        nuevoVector=VectorContenido(5,expresiones,self.linea,self.columna)
-        accesosimbolo=AccesoSimbolo(self.id,self.linea,self.columna)
-        capacidad=Capacity(accesosimbolo,self.linea,self.columna)
-        nuevoVector.aux1=capacidad
-        retorno=nuevoVector.obtener3D(entorno)
-
-        codigoSalida+=retorno.codigo
         codigoSalida += f"{temp1} = SP + {vector.direccionRelativa};\n"
-        codigoSalida += f"Stack[(int){temp1}] = {retorno.temporal}; //nueva ubicacion del vector\n"
-        vector.modificarDimension(retorno.valor.dimensiones)
+        codigoSalida += f"{temp2} = Stack[(int){temp1}]; \n"
+
+        codigoSalida+=f"{temporalPosicion} = HP;//nueva posicion del vector en el heap\n"
+        
+        
+        codigoSalida += f"{temp12} = Heap[(int){temp2}];\n" 
+        codigoSalida += f"{temp13} = {temp12} + 3;\n" 
+        codigoSalida+=f"HP = HP + {temp13};//reservacion del espacio del nuevo vector\n"
+        codigoSalida += f"{temp3} = {temp12} + 1;\n" 
+        codigoSalida+=f"Heap[(int){temporalPosicion}] = {temp3};//largo del vector nuevo\n"
+        codigoSalida+=f"{temporalLargo} = Heap[(int){temporalPosicion}];//largo del vector nuevo\n"
+        
+        codigoSalida += f"{temp4} = {temp2} + 1; //pos anterior del capacity vector viejo\n" 
+        codigoSalida += f"{temp5} = Heap[(int){temp4}];// valor capacity vector viejo\n" 
+        codigoSalida += f"{temp6} = {temporalPosicion} + 1;\n"
+        codigoSalida+=f"Heap[(int){temp6}] = {temp5};//capacidad del vector nuevo\n"
+        
+        
+        codigoSalida += f"{temp7} = {temp2} + 2; //pos datos viejos\n" 
+        codigoSalida += f"{temp8} = {temporalPosicion} + 2; //inicio datos nuevos\n"
+
+        valor=self.expresion2.obtener3D(entorno)
+        codigoSalida+=valor.codigo
+        codigoSalida += f"{temp9} = 0;// iterador\n"
+        codigoSalida+=f"{etqCiclo}:\n"
+        codigoSalida +=f"if({temp9} < {temp12}) goto {etqVerdadera};\n"
+        codigoSalida +=f"goto {etqFalsa};\n"
+        
+        
+        codigoSalida+=f"{etqVerdadera}:\n"
+
+        codigoSalida +=f"{temp10} = Heap[(int){temp7}];\n"
+        codigoSalida+=f"{temp7} = {temp7} + 1;\n"
+        codigoSalida+=f"Heap[(int){temp8}] = {temp10};\n"
+        codigoSalida+=f"{temp8} = {temp8} + 1;\n"
+        codigoSalida+=f"{temp9} = {temp9} + 1;\n"
+        codigoSalida +=f"goto {etqCiclo};\n"
+       
+        codigoSalida+=f"{etqFalsa}:\n"
+        codigoSalida+=f"Heap[(int){temp8}] = {valor.temporal};\n"
+
+
+
+
+
+        codigoSalida += f"{temp11} = SP + {vector.direccionRelativa};\n"
+        codigoSalida += f"Stack[(int){temp11}] = {temporalPosicion}; //nueva ubicacion del vector\n"
+        if isinstance(self.expresion2,VectorContenido):
+                print("eeeeee vector detectado en push")
+                vector.aux1=True
+                if len(vector.dimensiones)==1:
+                    vector.dimensiones[0]=vector.dimensiones[0]+1
+                    vector.dimensiones.append(valor.valor.dimensiones[0])
+                elif len(vector.dimensiones)==2:
+                    vector.dimensiones[0]=vector.dimensiones[0]+1
+        else:
+            vector.dimensiones[0]=vector.dimensiones[0]+1
+        
+        if vector.nombreAnterior!="":
+            temp1=s.obtenerTemporal()
+            anterior=entorno.obtenerSimbolo(vector.nombreAnterior)
+            anterior.dimensiones=vector.dimensiones
+            codigoSalida += f"{temp1} = {vector.punteroReferencia} + {anterior.direccionRelativa};\n"
+            codigoSalida += f"Stack[(int){temp1}] = {temporalPosicion}; //nueva ubicacion del vector\n"
 
         
         

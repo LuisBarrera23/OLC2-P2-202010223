@@ -11,6 +11,7 @@ from src.Expresion.Primitivo import Primitivo
 from src.Symbol.ArrayInstancia import ArrayInstancia
 from src.Expresion.AccesoArreglo import AccesoArreglo
 from src.Expresion.AccesoVector import AccesoVector
+from src.Expresion.AccesoSimbolo import AccesoSimbolo
 
 class Print(Instruccion):
 
@@ -164,7 +165,11 @@ class Print(Instruccion):
         
         elif exp.tipo == TipoDato.VECTOR:
             codigoSalida += "/* IMPRIMIENDO UN VECTOR */\n"
-            codigoSalida += self.imprimirVector(entorno,expresion)
+            vector=entorno.obtenerSimbolo(expresion.id)
+            if vector.aux1:
+                codigoSalida += self.imprimirVector(entorno,expresion)
+            else:
+                codigoSalida += self.imprimirVectorHeap(entorno,expresion)
             return codigoSalida
 
 
@@ -326,38 +331,77 @@ class Print(Instruccion):
         return codigoSalida
 
     def imprimirVectorHeap(self,entorno,expresion):
-        s=Singleton.getInstance()
-        etqCiclo=s.obtenerEtiqueta()
-        etqVerdadera=s.obtenerEtiqueta()
-        etqFalsa=s.obtenerEtiqueta()
-        temp1=s.obtenerTemporal()
-        temp2=s.obtenerTemporal()
-        temp3=s.obtenerTemporal()
-        temp4=s.obtenerTemporal()
+        if isinstance(expresion,AccesoSimbolo):
+            s=Singleton.getInstance()
+            etqCiclo=s.obtenerEtiqueta()
+            etqVerdadera=s.obtenerEtiqueta()
+            etqFalsa=s.obtenerEtiqueta()
+            temp1=s.obtenerTemporal()
+            temp2=s.obtenerTemporal()
+            temp3=s.obtenerTemporal()
+            temp4=s.obtenerTemporal()
+            temp5=s.obtenerTemporal()
+            temp6=s.obtenerTemporal()
+            vector:Simbolo=entorno.obtenerSimbolo(expresion.id)
+            
+            codigoSalida="/* IMPRIMIR VECTOR POR DIRECCION DEL HEAP */\n"
+            codigoSalida += f"{temp1} = SP + {vector.direccionRelativa};\n"
+            codigoSalida += f"{temp2} = Stack[(int){temp1}]; \n"
+            print("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeee")
+            codigoSalida +=f"printf(\"%c\",(char)91);\n"
+            codigoSalida+=f"{temp3} = Heap[(int){temp2}];\n" #valor del len
+            codigoSalida += f"{temp2} = {temp2} + 2;\n" #pos inicial de los datos
+            codigoSalida+=f"{temp4} = 0;\n"#iterador
+            codigoSalida+=f"{etqCiclo}:\n"
+            codigoSalida +=f"if({temp4} < {temp3}) goto {etqVerdadera};\n"
+            codigoSalida +=f"goto {etqFalsa};\n"
+            codigoSalida+=f"{etqVerdadera}:\n"
+            codigoSalida+=f"{temp5} = {temp2} + {temp4};\n"
+            codigoSalida+=f"{temp6} = Heap[(int){temp5}];\n"
 
-        
-        codigoSalida="/* IMPRIMIR VECTOR POR DIRECCION DEL HEAP */\n"
-        codigoSalida+=expresion.codigo
-        codigoSalida +=f"printf(\"%c\",(char)91);\n"
-        codigoSalida+=f"{temp1} = Heap[(int){expresion.temporal}];\n" #valor del len
-        codigoSalida += f"{expresion.temporal} = {expresion.temporal} + 1;\n"
-        codigoSalida+=f"{temp2} = 1;\n"#iterador
-        codigoSalida+=f"{etqCiclo}:\n"
-        codigoSalida +=f"if({temp2} <= {temp1}) goto {etqVerdadera};\n"
-        codigoSalida +=f"goto {etqFalsa};\n"
-        codigoSalida+=f"{etqVerdadera}:\n"
-        codigoSalida+=f"{temp3} = {expresion.temporal} + {temp2};\n"
-        codigoSalida+=f"{temp4} = Heap[(int){temp3}];\n"
+            codigoSalida += f'printf(\"%d\", (int){temp6}); \n'
+            
 
-        codigoSalida += f'printf(\"%d\", (int){temp4}); \n'
-        
+            codigoSalida+=f"{temp4} = {temp4} + 1;\n"#iterador
+            codigoSalida +=f"if({temp4} == {temp3}) goto {etqCiclo};\n"
+            codigoSalida += f"printf(\"%c\",(char)44);\n"
+            codigoSalida +=f"goto {etqCiclo};\n"
+            codigoSalida+=f"{etqFalsa}:\n"
+            codigoSalida += f"printf(\"%c\",(char)93);\n"
+            return codigoSalida
+        else:
+            s=Singleton.getInstance()
+            etqCiclo=s.obtenerEtiqueta()
+            etqVerdadera=s.obtenerEtiqueta()
+            etqFalsa=s.obtenerEtiqueta()
+            temp1=s.obtenerTemporal()
+            temp2=s.obtenerTemporal()
+            temp3=s.obtenerTemporal()
+            temp4=s.obtenerTemporal()
 
-        codigoSalida+=f"{temp2} = {temp2} + 1;\n"#iterador
-        codigoSalida +=f"if({temp2} > {temp1}) goto {etqCiclo};\n"
-        codigoSalida += f"printf(\"%c\",(char)44);\n"
-        codigoSalida +=f"goto {etqCiclo};\n"
-        codigoSalida+=f"{etqFalsa}:\n"
-        codigoSalida += f"printf(\"%c\",(char)93);\n"
-        return codigoSalida
+            
+            codigoSalida="/* IMPRIMIR VECTOR POR DIRECCION DEL HEAP */\n"
+            codigoSalida+=expresion.codigo
+            codigoSalida +=f"printf(\"%c\",(char)91);\n"
+            codigoSalida+=f"{temp1} = Heap[(int){expresion.temporal}];\n" #valor del len
+            codigoSalida += f"{expresion.temporal} = {expresion.temporal} + 1;\n"
+            codigoSalida+=f"{temp2} = 1;\n"#iterador
+            codigoSalida+=f"{etqCiclo}:\n"
+            codigoSalida +=f"if({temp2} <= {temp1}) goto {etqVerdadera};\n"
+            codigoSalida +=f"goto {etqFalsa};\n"
+            codigoSalida+=f"{etqVerdadera}:\n"
+            codigoSalida+=f"{temp3} = {expresion.temporal} + {temp2};\n"
+            codigoSalida+=f"{temp4} = Heap[(int){temp3}];\n"
 
+            codigoSalida += f'printf(\"%d\", (int){temp4}); \n'
+            
+
+            codigoSalida+=f"{temp2} = {temp2} + 1;\n"#iterador
+            codigoSalida +=f"if({temp2} > {temp1}) goto {etqCiclo};\n"
+            codigoSalida += f"printf(\"%c\",(char)44);\n"
+            codigoSalida +=f"goto {etqCiclo};\n"
+            codigoSalida+=f"{etqFalsa}:\n"
+            codigoSalida += f"printf(\"%c\",(char)93);\n"
+            return codigoSalida
+            
 

@@ -42,8 +42,11 @@ class DeclaracionVector(Instruccion):
 
         if expresionVector.tipo != TipoDato.VECTOR:
             raise Exception(s.addError(Error(f"La expresion necesita ser un vector",self.linea,self.columna)))
-        if expresionVector.valor.tipo==TipoDato.VECTOR:
-            expresionVector.valor.tipo=self.tipo
+        if expresionVector.tipo==TipoDato.VECTOR:
+            if self.tipo==TipoDato.ERROR and self.expresion.tipodeclaracion==1:
+                expresionVector.tipo=expresionVector.valor.tipo
+            else:
+                expresionVector.tipo=self.tipo
         
         if self.dimensiones==None:
             #print("sin dimensiones especificadas")
@@ -61,6 +64,11 @@ class DeclaracionVector(Instruccion):
             objetoVector.identificador = self.idInstancia
             objetoVector.editable=self.mutable
             objetoVector.direccionRelativa=entorno.tamaño
+            objetoVector.tipo=expresionVector.tipo
+            
+
+            
+            
             entorno.agregarSimbolo(objetoVector)
             return codigoSalida
 

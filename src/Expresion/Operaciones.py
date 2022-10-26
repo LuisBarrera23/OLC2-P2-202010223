@@ -535,10 +535,26 @@ class Operacion(Expresion):
         return codigoSalida
 
     def Relacional(self,entorno):
+        s=Singleton.getInstance()
         codigoSalida=""
+        
         s=Singleton.getInstance()
         E1:RetornoType=self.izquierda.obtener3D(entorno)
         E2:RetornoType=self.derecha.obtener3D(entorno)
+        if self.etiquetaFalsa=="" and self.etiquetaVerdadera=="":
+            self.etiquetaFalsa=s.obtenerEtiqueta()
+            etqSalida=s.obtenerEtiqueta()
+            tempResultado=s.obtenerTemporal()
+            codigoSalida += E1.codigo
+            codigoSalida += E2.codigo
+            codigoSalida += f"{tempResultado} = 0;\n"
+            codigoSalida += f'if ({E1.temporal} != {E2.temporal}) goto {etqSalida};\n'
+            codigoSalida += f"{tempResultado} = 1;\n"
+            codigoSalida += f'goto {etqSalida}; \n'
+            codigoSalida += f'{etqSalida}:\n'
+            retorno=RetornoType()
+            retorno.iniciarRetorno(codigoSalida,"",tempResultado,TipoDato.BOOL)
+            return retorno
         codigoSalida += E1.codigo
         codigoSalida += E2.codigo
         codigoSalida += f'if ({E1.temporal} {self.simbolo()} {E2.temporal}) goto {self.etiquetaVerdadera};\n'

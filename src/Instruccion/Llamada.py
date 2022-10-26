@@ -1,3 +1,4 @@
+from src.Symbol.Symbol import Simbolo
 from src.Instruccion.Declaracion import Declaracion
 from src.Abstract.Expresion import Expresion
 from src.Abstract.RetornoType import RetornoType, TipoDato
@@ -7,6 +8,8 @@ from src.PatronSingleton.Singleton import Singleton
 from src.Symbol.Error import Error
 from src.Symbol.EntornoTabla import EntornoTabla
 from src.Expresion.AccesoSimbolo import AccesoSimbolo
+from src.Instruccion.Push import Push
+from src.Instruccion.Insert import Insert
 
 class Llamada(Instruccion,Expresion):
     def __init__(self,id, expresiones,linea, columna):
@@ -54,9 +57,19 @@ class Llamada(Instruccion,Expresion):
         retorno.RetornoPos=temp1
         return retorno
 
-    def generarFuncion(self,entorno,funcion):
+    def generarFuncion(self,entorno,funcion:Simbolo):
         s=Singleton.getInstance()
         if funcion.generada:
+            
+            # for i in funcion.instrucciones:
+            #     if isinstance(i,Push):
+            #         vector=entorno.obtenerSimbolo(i.id)
+            #         vector.dimensiones[0]=vector.dimensiones[0]+1
+            #     elif isinstance(i,Insert):
+            #         vector=entorno.obtenerSimbolo(i.id)
+            #         vector.dimensiones[0]=vector.dimensiones[0]+1
+                
+
             return
         funcion.generada=True
         entorno.actualizarFuncion(funcion)

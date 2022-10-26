@@ -47,19 +47,21 @@ class Remove(Expresion):
             temp6=s.obtenerTemporal()
             temp7=s.obtenerTemporal()
             temp8=s.obtenerTemporal()
-            temp9=s.obtenerTemporal()
 
             codigoSalida += f"{temp1} = SP + {vector.direccionRelativa};\n"
             codigoSalida += f"{temporalPosicion} = Stack[(int){temp1}]; \n"
 
             codigoSalida += f"{temp2} = Heap[(int){temporalPosicion}];//valor len\n" 
             codigoSalida += f"{temp3} = {temp2} - 1;\n" 
+            pos=self.expresion2.obtener3D(entorno)
+            codigoSalida+=pos.codigo
             codigoSalida+=f"Heap[(int){temporalPosicion}] = {temp3};//largo del vector nuevo\n"
 
             codigoSalida += f"{temp4} = {temporalPosicion} + 2; //pos datos\n" 
+            codigoSalida += f"{temp7} = {temporalPosicion} + 2; //pos pivote\n" 
             
-            pos=self.expresion2.obtener3D(entorno)
-            codigoSalida+=pos.codigo
+            
+            
 
             codigoSalida += f"{temp5} = 0;// iterador\n"
 
@@ -74,12 +76,14 @@ class Remove(Expresion):
             codigoSalida+=f"{etqVerdadera1}:\n"
             codigoSalida+=f"{temporalRetorno} = Heap[(int){temp4}];\n" 
             codigoSalida+=f"{temp4} = {temp4} + 1;\n"
-            codigoSalida+=f"{temp5} = {temp5} + 1;\n"
+            codigoSalida += f"{pos.temporal} = -1;\n"
+            #codigoSalida+=f"{temp5} = {temp5} + 1;\n"
             codigoSalida +=f"goto {etqCiclo};\n"
 
             codigoSalida+=f"{etqFalsa1}:\n"
             codigoSalida+=f"{temp6} = Heap[(int){temp4}];\n" 
-            codigoSalida+=f"Heap[(int){temp4}] = {temp6};\n"
+            codigoSalida+=f"{temp8} = {temp7} + {temp5};\n"
+            codigoSalida+=f"Heap[(int){temp8}] = {temp6};\n"
             codigoSalida+=f"{temp4} = {temp4} + 1;\n"
             codigoSalida+=f"{temp5} = {temp5} + 1;\n"
             codigoSalida +=f"goto {etqCiclo};\n"
