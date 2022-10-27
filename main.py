@@ -12,6 +12,7 @@ CORS(app)
 
 from src.PatronSingleton.Singleton import Singleton
 from src.Symbol.Error import Error
+from src.Symbol.Simbolo import SimboloT
 from src.Symbol.EntornoTabla import EntornoTabla
 from gramatica import gramatica
 from src.Instruccion.Funcion import Funcion
@@ -45,11 +46,11 @@ def ejecutar():
         principal=EntornoPadre.obtenerFuncion("main")
         for instruccion in principal.bloque:
             try:
-                #s.agregarInstruccion(instruccion.Ejecutar(EntornoPadre))
+                s.agregarInstruccion(instruccion.Ejecutar(EntornoPadre))
                 pass
             except:
                 print("error.........................")
-            s.agregarInstruccion(instruccion.Ejecutar(EntornoPadre))
+            #s.agregarInstruccion(instruccion.Ejecutar(EntornoPadre))
     else:
         s.addError(Error(f"No existe funcion main()",0,0))
 
@@ -58,6 +59,37 @@ def ejecutar():
     for e in errores:
         print(e.descripcion,e.tiempo," linea: ",e.linea," columna: ",e.columna)
     return jsonify({'salida':s.generarMain()})
+
+@app.route('/errores',methods=['GET'])
+def errores():
+    s=Singleton.getInstance()
+    errores:Error=s.getErrores()
+    arreglo=[]
+    for e in errores:
+        temp={
+            'descripcion':e.descripcion,
+            'linea':e.linea,
+            'columna':e.columna,
+            'fecha':e.tiempo
+        }
+        arreglo.append(temp)
+    return jsonify(arreglo)
+
+@app.route('/simbolos',methods=['GET'])
+def simbolos():
+    s=Singleton.getInstance()
+    simbolos:SimboloT=s.getSimbolos()
+    arreglo=[]
+    for s in simbolos:
+        temp={
+            'nombre':s.nombre,
+            'tipo':s.tipo,
+            'ambito':s.ambito,
+            'linea':s.linea,
+            'columna':s.columna
+        }
+        arreglo.append(temp)
+    return jsonify(arreglo)
 
 if __name__=="__main__":
     app.run(host="0.0.0.0",port=8080,debug=True)

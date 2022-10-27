@@ -77,5 +77,7 @@ class DeclaracionArreglo(Instruccion):
             objetoArreglo.identificador = self.idInstancia
             objetoArreglo.editable=self.mutable
             objetoArreglo.direccionRelativa=entorno.tamaño
+            objetoArreglo.linea=self.linea
+            objetoArreglo.columna=self.columna
             entorno.agregarSimbolo(objetoArreglo)
             return codigoSalida

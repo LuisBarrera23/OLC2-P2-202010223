@@ -1,4 +1,7 @@
 from src.Symbol.Symbol import Simbolo
+from src.PatronSingleton.Singleton import Singleton,SimboloT
+from src.Symbol.ArrayInstancia import ArrayInstancia
+from src.Symbol.VectorInstancia import VectorInstancia
 
 
 class EntornoTabla:
@@ -41,8 +44,18 @@ class EntornoTabla:
         return Simbolo()
 
     def agregarSimbolo(self, simboloAdd:Simbolo):
+        s=Singleton.getInstance()
         self.tabla[simboloAdd.identificador] = simboloAdd
         self.tamaño+=1
+        if isinstance(simboloAdd,ArrayInstancia):
+            s.addSimbolo(SimboloT(simboloAdd.identificador,"Arreglo","Local",simboloAdd.linea,simboloAdd.columna))
+        elif isinstance(simboloAdd,VectorInstancia):
+            s.addSimbolo(SimboloT(simboloAdd.identificador,"Vector","Local",simboloAdd.linea,simboloAdd.columna))
+        else:
+            s.addSimbolo(SimboloT(simboloAdd.identificador,"Simbolo Primitivo","Local",simboloAdd.linea,simboloAdd.columna))
+
+
+
 
     def modificarSimbolo(self,identificador,valor):
         entorno = self
@@ -78,7 +91,9 @@ class EntornoTabla:
         return None
 
     def agregarFuncion(self,funcionAdd):
+        s=Singleton.getInstance()
         self.tablaFunciones[funcionAdd.identificador] = funcionAdd
+        s.addSimbolo(SimboloT(funcionAdd.identificador,"Funcion","Global",funcionAdd.linea,funcionAdd.columna))
         #print(f"funcion {funcionAdd.identificador} agregada con exito")
 
     def actualizarFuncion(self,funcion):

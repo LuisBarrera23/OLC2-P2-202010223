@@ -1,5 +1,7 @@
+import imp
 from src.Abstract.RetornoType import TipoDato
 from src.Symbol.Error import Error
+from src.Symbol.Simbolo import SimboloT
 
 
 class Singleton:
@@ -20,6 +22,7 @@ class Singleton:
         self.main = ""
         self.funciones=""
         self.errores = []
+        self.simbolos=[]
         self.tipoTemporal=TipoDato.ERROR
         self.temporalLoop=""
         if Singleton.__instance != None:
@@ -35,12 +38,19 @@ class Singleton:
         self.funciones = ""
         self.main = ""
         self.errores = []
+        self.simbolos=[]
 
     def addError(self, Error: Error):
         self.errores.append(Error)
 
     def getErrores(self):
         return self.errores
+
+    def addSimbolo(self, Simbolo: SimboloT):
+        self.simbolos.append(Simbolo)
+
+    def getSimbolos(self):
+        return self.simbolos
 
     def obtenerTemporal(self):
         temporal = "t"+self.temporales.__str__()

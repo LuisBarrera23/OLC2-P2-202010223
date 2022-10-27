@@ -88,10 +88,10 @@
                 <table id="t1" class="table table-dark table-hover">
                     <thead class="thead-dark">
                         <tr>
-                            <th scope="col">Tipo Error</th>
                             <th scope="col">Descripción</th>
                             <th scope="col">Linea</th>
                             <th scope="col">Columna</th>
+                            <th scope="col">Fecha y hora</th>
                         </tr>
                     </thead>
                     <tbody id="tErrores"></tbody>
@@ -107,10 +107,11 @@
                 <table id="t2" class="table table-dark table-hover">
                     <thead class="thead-dark">
                         <tr>
-                            <th scope="col">Valor</th>
                             <th scope="col">Nombre</th>
                             <th scope="col">Tipo</th>
-                            <th scope="col">Editable</th>
+                            <th scope="col">Ambito</th>
+                            <th scope="col">Fila</th>
+                            <th scope="col">Columna</th>
                         </tr>
                     </thead>
                     <tbody id="tSimbolos"></tbody>
@@ -273,10 +274,10 @@
                     response.forEach(element => {
                         //console.log(element.tipo);
                         cadena += `<tr>
-                      <td>${element.tipo}</td>
                       <td>${element.descripcion}</td>
-                      <td>${element.line}</td>
-                      <td>${element.column}</td>
+                      <td>${element.linea}</td>
+                      <td>${element.columna}</td>
+                      <td>${element.fecha}</td>
                       </tr>`;
                     });
                     tabla.innerHTML = cadena;
@@ -301,28 +302,14 @@
                     alert("Ocurrio un error, ver la consola")
                 })
                 .then(response => {
-                    console.log(response)
+                    //console.log(response)
                     response.forEach(element => {
-
-                        let tipo = "";
-                        if (element.type == 0) {
-                            tipo = "INT"
-                        } else if (element.type == 1) {
-                            tipo = "DOUBLE"
-                        } else if (element.type == 2) {
-                            tipo = "STRING"
-                        } else if (element.type == 3) {
-                            tipo = "BOOLEAN"
-                        } else if (element.type == 4) {
-                            tipo = "CHAR"
-                        } else if (element.type == 5) {
-                            tipo = "ERROR"
-                        }
                         cadena += `<tr>
-                      <td>${element.value}</td>
-                      <td>${element.id}</td>
-                      <td>${tipo}</td>
-                      <td>${element.editable}</td>
+                      <td>${element.nombre}</td>
+                      <td>${element.tipo}</td>
+                      <td>${element.ambito}</td>
+                      <td>${element.linea}</td>
+                      <td>${element.columna}</td>
                       </tr>`;
                     });
                     tabla.innerHTML = cadena;

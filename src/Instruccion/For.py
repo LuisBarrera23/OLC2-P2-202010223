@@ -1,3 +1,4 @@
+from src.Instruccion.Asignacion import Asignacion
 from src.Instruccion.Declaracion import Declaracion
 from src.Abstract.Instruccion import Instruccion
 from src.Abstract.RetornoType import RetornoType,TipoDato
@@ -12,6 +13,7 @@ from src.Instruccion.Return import Return
 
 from src.Symbol.ArrayInstancia import ArrayInstancia
 from src.Expresion.AccesoSimbolo import AccesoSimbolo
+from src.Expresion.AccesoArreglo import AccesoArreglo
 from src.Expresion.Primitivo import Primitivo
 
 class For(Instruccion):
@@ -70,7 +72,38 @@ class For(Instruccion):
         elif self.tipofor==2:
             pass
         elif self.tipofor==3:
-            pass
+            codigoSalida="/* FOR TIPO 3 */\n"
+            if entorno.existeSimbolo(self.valor1.id) is False:
+                raise Exception(s.addError(Error(f"Arreglo no existe para iterar",self.linea,self.columna)))
+            arreglo=entorno.obtenerSimbolo(self.valor1.id)
+
+            nuevoEntorno=EntornoTabla(entorno)
+            nuevoEntorno.tamaño=entorno.tamaño
+            
+            accesos=[]
+            accesoNoCompilados=[]
+            for i in range(arreglo.dimensiones[0]):
+                indice=[]
+                x=Primitivo(i,TipoDato.I64)
+                indice.append(x)
+                acceso=AccesoArreglo(arreglo.identificador,indice,self.linea,self.columna)
+                accesos.append(acceso.obtener3D(entorno))
+                if i>0:
+                    accesoNoCompilados.append(acceso)
+
+            if len(accesos)>0:
+                variable=Declaracion(self.variable,None,True,self.linea,self.columna,arreglo.tipo)
+                actual=accesos.pop(0)
+                variable.expresionCompilada=actual
+                codigoSalida+=variable.Ejecutar(nuevoEntorno)
+                codigoSalida+=self.EjecutarBloque(nuevoEntorno,self.bloque)
+
+                for i in range(len(accesos)):
+                    actual=accesoNoCompilados.pop(0)
+                    asignacion=Asignacion(self.variable,actual,self.linea,self.columna)
+                    codigoSalida+=asignacion.Ejecutar(nuevoEntorno)
+                    codigoSalida+=self.EjecutarBloque(nuevoEntorno,self.bloque)
+                return codigoSalida
             
 
         return
@@ -80,6 +113,11 @@ class For(Instruccion):
     def EjecutarBloque(self,entorno,lista):
         codigoSalida = ""
         for i in lista :
-            codigoSalida += i.Ejecutar(entorno)
+            try:
+                codigoSalida += i.Ejecutar(entorno)
+                pass
+            except:
+                print("error.........................")
+            #codigoSalida += i.Ejecutar(entorno) 
         return codigoSalida
         

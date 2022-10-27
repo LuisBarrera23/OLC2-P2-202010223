@@ -40,5 +40,10 @@ class While(Instruccion):
     def EjecutarBloque(self,entorno,lista):
         codigoSalida = ""
         for i in lista :
-            codigoSalida += i.Ejecutar(entorno)
+            try:
+                codigoSalida += i.Ejecutar(entorno)
+                pass
+            except:
+                print("error.........................")
+            #codigoSalida += i.Ejecutar(entorno) 
         return codigoSalida

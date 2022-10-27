@@ -23,6 +23,7 @@ from src.Instruccion.AsignacionArreglo import AsignacionArreglo
 from src.Instruccion.DeclaracionVector import DeclaracionVector
 from src.Instruccion.Push import Push
 from src.Instruccion.Insert import Insert
+from src.Instruccion.Match import Match
 
 
 from src.Expresion.casteo import Casteo
@@ -85,7 +86,8 @@ reservadas = {
     'push' : 'PUSH',
     'insert' : 'INSERT',
     'remove' : 'REMOVE',
-    'contains':'CONTAINS'
+    'contains':'CONTAINS',
+    'match' : 'MATCH'
 }
 
 tokens = [
@@ -123,7 +125,8 @@ tokens = [
              'CADENA',
              'CARACTER',
              'FLECHA',
-             'Y'
+             'Y',
+             'GBAJO'
          ] + list(reservadas.values())
 
 # definir tokens
@@ -158,6 +161,7 @@ t_DIVISION = r'/'
 t_MULTIPLICACION = r'\*'
 t_MODULO = r'\%'
 t_FLECHA = r'->'
+t_GBAJO = r'_'
 
 def t_DECIMAL(t):
     r"""\d+\.\d+"""
@@ -339,9 +343,27 @@ def p_instruccion(t):
                 | while
                 | continue PTCOMA
                 | for 
+                | match
                 | insert PTCOMA
                 | asignacionA PTCOMA
                 | push PTCOMA"""
+    t[0]=t[1]
+
+def p_instruccion1(t):
+    """instruccion1 : print COMA
+                | declaracion COMA
+                | asignacion COMA
+                | if_i COMA
+                | llamadaF COMA
+                | return COMA
+                | loop COMA
+                | break COMA
+                | while COMA
+                | continue COMA
+                | for COMA
+                | insert COMA
+                | asignacionA COMA
+                | push COMA"""
     t[0]=t[1]
 
 def p_print(t):
@@ -464,6 +486,9 @@ def p_elseif_corte(t):
     """elseifI : ELSE IF expresion bloque"""
     t[0]=If_i(t[3],t[4],[],[],t.lexer.lineno,find_column(entrada,t.slice[1]))
 
+def p_match(t):
+    """ match : MATCH expresion LLAVEIZQ  expresion IGUAL MAYOR instruccion1 expresion IGUAL MAYOR instruccion1 ID IGUAL MAYOR instruccion1 LLAVEDER"""
+    t[0]=Match(t[2],t[4],t[7],t[8],t[11],t[15],t.lexer.lineno,find_column(entrada,t.slice[1]))
 
 
 def p_loop(t):

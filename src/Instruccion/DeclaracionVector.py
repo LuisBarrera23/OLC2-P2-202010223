@@ -68,7 +68,8 @@ class DeclaracionVector(Instruccion):
             
 
             
-            
+            objetoVector.linea=self.linea
+            objetoVector.columna=self.columna
             entorno.agregarSimbolo(objetoVector)
             return codigoSalida
 
@@ -93,6 +94,8 @@ class DeclaracionVector(Instruccion):
             objetoVector.identificador = self.idInstancia
             objetoVector.editable=self.mutable
             objetoVector.direccionRelativa=entorno.tamaño
+            objetoVector.linea=self.linea
+            objetoVector.columna=self.columna
             entorno.agregarSimbolo(objetoVector)
             return codigoSalida
         
